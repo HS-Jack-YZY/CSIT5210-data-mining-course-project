@@ -1,0 +1,129 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+
+# API Keys and Credentials
+.env
+.env.local
+.env.*.local
+*.key
+secrets.json
+credentials.json
+api_keys.txt
+config_secrets.yaml
+
+# IDE and Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Data Files (可能很大的数据集)
+*.csv
+*.tsv
+*.json
+*.jsonl
+*.parquet
+*.pkl
+*.pickle
+data/raw/
+data/processed/
+datasets/
+*.h5
+*.hdf5
+
+# Model Files
+models/
+checkpoints/
+*.pt
+*.pth
+*.ckpt
+*.model
+*.weights
+*.safetensors
+
+# Experiment Outputs
+logs/
+runs/
+experiments/
+outputs/
+results/
+*.log
+
+# Cache
+.cache/
+*.cache
+__pypackages__/
+
+# BMad Workflow Files (ignore entire framework)
+bmad/
+.bmad_temp/
+*.tmp
+.claude
+
+# BMad Workflow Status (可选：如果不想提交工作流进度)
+docs/bmm-workflow-status.yaml
+
+# Coverage Reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.pytest_cache/
+nosetests.xml
+coverage.xml
+*.cover
+
+# Keep Important Files
+!requirements.txt
+!README.md
+!LICENSE
+!.gitignore
