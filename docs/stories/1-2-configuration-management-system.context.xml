@@ -1,0 +1,278 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>2</storyId>
+    <title>Configuration Management System</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-09</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/1-2-configuration-management-system.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>data mining student</asA>
+    <iWant>a centralized configuration system for all experimental parameters</iWant>
+    <soThat>I can easily adjust clustering settings and reproduce experiments</soThat>
+    <tasks>
+      - Create config.yaml in project root with dataset, clustering, embedding, classification, and metrics sections
+      - Implement Config class with load, get (dot notation), validate, and gemini_api_key methods
+      - Implement Paths class with all project directory paths and automatic creation
+      - Implement set_seed() utility for reproducibility
+      - Test configuration system for all scenarios (valid config, missing file, invalid syntax, missing fields, API key handling)
+      - Test Paths creates all directories with absolute paths
+      - Test set_seed() produces identical random results
+      - Update documentation (README.md with config usage and reproducibility info)
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC-1">
+      <title>Configuration File Created with All Parameters</title>
+      <description>config.yaml exists in project root with sections for dataset, clustering, embedding, classification, and metrics configuration</description>
+      <verification>
+        - Verify config.yaml exists with all 5 sections
+        - Dataset config includes: name, categories, sample_size
+        - Clustering config includes: algorithm, n_clusters=4, random_state=42, max_iter=300, init='k-means++'
+        - Embedding config includes: model='gemini-embedding-001', batch_size=100, cache_dir, output_dimensionality=768
+        - Classification config includes: method='cosine_similarity', threshold=0.7
+        - Metrics config includes: cost rates and target_cost_reduction=0.90
+      </verification>
+    </criterion>
+    <criterion id="AC-2">
+      <title>Config Class Loads and Validates Configuration</title>
+      <description>Config() initializes without errors and provides access to all configuration parameters with dot notation</description>
+      <verification>
+        - Config() initializes successfully
+        - config.get("clustering.n_clusters") returns 4
+        - config.get("embedding.model") returns "gemini-embedding-001"
+        - config.get("embedding.output_dimensionality") returns 768
+        - config.gemini_api_key returns API key from .env
+        - config.validate() returns True for valid config
+        - All sections accessible: dataset, clustering, embedding, classification, metrics
+      </verification>
+    </criterion>
+    <criterion id="AC-3">
+      <title>Invalid Configuration Raises Informative Errors</title>
+      <description>Config handles missing/invalid values with clear error messages</description>
+      <verification>
+        - Missing required fields raise ValueError with specific field name
+        - Invalid data types raise TypeError with expected type information
+        - Error messages guide user to fix configuration
+        - Missing API key raises: "GEMINI_API_KEY not found. Copy .env.example to .env and add your API key."
+      </verification>
+    </criterion>
+    <criterion id="AC-4">
+      <title>Paths System Creates and Manages All Project Directories</title>
+      <description>Paths class provides absolute paths to all project directories with automatic creation</description>
+      <verification>
+        - All path attributes exist: data, data_raw, data_embeddings, data_interim, data_processed, models, notebooks, reports, reports_figures, results
+        - Directories created if missing (mkdir -p behavior with parents=True, exist_ok=True)
+        - All paths are absolute (not relative)
+        - Path operations use pathlib.Path for cross-platform compatibility
+      </verification>
+    </criterion>
+    <criterion id="AC-5">
+      <title>Reproducibility Utility Sets Random Seeds</title>
+      <description>set_seed(42) ensures deterministic behavior for random operations</description>
+      <verification>
+        - numpy.random.rand() produces identical results across runs
+        - random.random() produces identical results across runs
+        - Subsequent operations using numpy/random are deterministic
+        - K-Means with random_state=42 will produce identical clusters
+      </verification>
+    </criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <artifact>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>AC-3: Configuration System Functional</section>
+        <snippet>Config class loads config.yaml with PyYAML, validates all required fields (dataset, clustering, embedding, classification, metrics), and provides dot notation access (e.g., config.get("clustering.n_clusters") returns 4).</snippet>
+      </artifact>
+      <artifact>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>AC-4: Paths System Functional</section>
+        <snippet>Paths class manages all project directories (data, data_raw, data_embeddings, data_interim, data_processed, models, notebooks, reports, reports_figures, results) with pathlib.Path, automatic creation via mkdir(parents=True, exist_ok=True), and absolute path resolution.</snippet>
+      </artifact>
+      <artifact>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>AC-5: Reproducibility Utility Functional</section>
+        <snippet>set_seed(42) utility sets numpy.random.seed() and random.seed() for deterministic behavior. K-Means uses separate random_state=42 parameter from config. Testing validates identical results across runs.</snippet>
+      </artifact>
+      <artifact>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>Data Models and Contracts - Configuration Schema</section>
+        <snippet>config.yaml schema defines 5 sections: dataset (name, categories, sample_size), clustering (algorithm, n_clusters, random_state, max_iter, init), embedding (model, batch_size, cache_dir, output_dimensionality), classification (method, threshold), metrics (cost rates, target_cost_reduction).</snippet>
+      </artifact>
+      <artifact>
+        <path>docs/architecture.md</path>
+        <title>Architecture Decision Records</title>
+        <section>ADR-004: Use Fixed Random Seed (42)</section>
+        <snippet>Fixed random seed ensures reproducible clustering results for academic evaluation. set_seed() utility centralizes seed management for numpy and Python's random module. scikit-learn algorithms use random_state parameter separately.</snippet>
+      </artifact>
+      <artifact>
+        <path>docs/architecture.md</path>
+        <title>Architecture Decision Records</title>
+        <section>ADR-006: Separate Configuration and Secrets</section>
+        <snippet>config.yaml (committed) contains experimental parameters. .env (gitignored) contains API keys. PyYAML for YAML parsing, python-dotenv for environment variables. Config class loads from os.getenv(), never logs API keys.</snippet>
+      </artifact>
+      <artifact>
+        <path>docs/epics.md</path>
+        <title>Epic Breakdown</title>
+        <section>Story 1.2: Configuration Management System</section>
+        <snippet>Implements centralized configuration for all experimental parameters including clustering settings (K=4, random_state=42), embedding model (gemini-embedding-001, 768 dimensions), classification threshold, and cost metrics.</snippet>
+      </artifact>
+    </docs>
+    <code>
+      <artifact>
+        <path>src/context_aware_multi_agent_system/__init__.py</path>
+        <kind>module initialization</kind>
+        <symbol>__init__</symbol>
+        <lines>1</lines>
+        <reason>Module package already initialized from Story 1.1, config.py will be added to this module</reason>
+      </artifact>
+      <artifact>
+        <path>src/context_aware_multi_agent_system/utils/__init__.py</path>
+        <kind>submodule initialization</kind>
+        <symbol>__init__</symbol>
+        <lines>1</lines>
+        <reason>Utils package exists, reproducibility.py will be added here</reason>
+      </artifact>
+      <artifact>
+        <path>.env.example</path>
+        <kind>configuration template</kind>
+        <symbol>GEMINI_API_KEY</symbol>
+        <lines>1-8</lines>
+        <reason>API key template exists with GEMINI_API_KEY placeholder, Config class should reference this pattern</reason>
+      </artifact>
+      <artifact>
+        <path>.gitignore</path>
+        <kind>version control configuration</kind>
+        <symbol>N/A</symbol>
+        <lines>35-42, 70-81</lines>
+        <reason>Security patterns configured: .env excluded (line 35), data/ excluded (line 70), ensures config.yaml will be committed but secrets remain private</reason>
+      </artifact>
+      <artifact>
+        <path>requirements.txt</path>
+        <kind>dependency manifest</kind>
+        <symbol>N/A</symbol>
+        <lines>17-18</lines>
+        <reason>PyYAML>=6.0 and python-dotenv>=1.0.0 already specified, Config class dependencies satisfied</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <python>
+        <package name="PyYAML" version=">=6.0" purpose="Parse config.yaml files" />
+        <package name="python-dotenv" version=">=1.0.0" purpose="Load environment variables from .env file" />
+        <package name="pathlib" version="stdlib" purpose="Cross-platform path operations for Paths class" />
+        <package name="numpy" version=">=1.24.0" purpose="Random seed setting in set_seed() utility" />
+      </python>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    - **Module Location**: All code must be placed in src/context_aware_multi_agent_system/ module (established in Story 1.1)
+    - **Import Pattern**: Use correct import syntax: `from google import genai` (not `import google.genai`) per Story 1.1 code review
+    - **Absolute Paths Required**: All paths in Paths class must be absolute using Path.resolve() to avoid working directory issues
+    - **API Key Security**: Never hardcode API keys; always load from environment using os.getenv(); never log API key values
+    - **Configuration Separation**: config.yaml (committed to git) vs .env (gitignored) per ADR-006
+    - **Reproducibility**: Use random_state=42 consistently; set_seed() for numpy/random, scikit-learn uses random_state parameter separately
+    - **Error Messages**: Must be informative and guide user to fix issues (e.g., missing API key error must include setup instructions)
+    - **Cross-Platform**: Use pathlib.Path for all file operations to ensure Windows/macOS/Linux compatibility
+    - **Type Hints**: All functions and methods must include type hints per project coding standards
+    - **Directory Creation**: Use mkdir(parents=True, exist_ok=True) pattern to safely create directories without errors
+  </constraints>
+  <interfaces>
+    <interface>
+      <name>Config.get()</name>
+      <kind>method</kind>
+      <signature>def get(self, key: str, default: Any = None) -> Any</signature>
+      <path>src/context_aware_multi_agent_system/config.py</path>
+      <description>Retrieves configuration values using dot notation (e.g., "clustering.n_clusters" returns 4)</description>
+    </interface>
+    <interface>
+      <name>Config.validate()</name>
+      <kind>method</kind>
+      <signature>def validate(self) -> bool</signature>
+      <path>src/context_aware_multi_agent_system/config.py</path>
+      <description>Validates all required configuration fields and data types, returns True if valid, raises ValueError/TypeError otherwise</description>
+    </interface>
+    <interface>
+      <name>Config.gemini_api_key</name>
+      <kind>property</kind>
+      <signature>@property def gemini_api_key(self) -> str</signature>
+      <path>src/context_aware_multi_agent_system/config.py</path>
+      <description>Retrieves GEMINI_API_KEY from environment variables, raises clear error if missing</description>
+    </interface>
+    <interface>
+      <name>Paths</name>
+      <kind>class</kind>
+      <signature>class Paths</signature>
+      <path>src/context_aware_multi_agent_system/config.py</path>
+      <description>Provides absolute Path objects for all project directories: data, data_raw, data_embeddings, data_interim, data_processed, models, notebooks, reports, reports_figures, results</description>
+    </interface>
+    <interface>
+      <name>set_seed()</name>
+      <kind>function</kind>
+      <signature>def set_seed(seed: int) -> None</signature>
+      <path>src/context_aware_multi_agent_system/utils/reproducibility.py</path>
+      <description>Sets random seeds globally for numpy and Python's random module to ensure deterministic behavior</description>
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>
+      - **Testing Framework**: pytest (version >=7.4.0 already in requirements.txt)
+      - **Test Coverage Goal**: >80% for configuration modules (optional for MVP)
+      - **Unit Testing Strategy**: Test Config class (loading, validation, get() method, API key retrieval), Paths class (directory creation, absolute paths), set_seed() utility (deterministic behavior)
+      - **Integration Testing Strategy**: Full workflow test (load config → validate → access all sections), error scenario testing (missing files, invalid syntax, missing API key)
+      - **Test Execution**: Automated pytest for unit tests, manual verification for directory creation and cross-platform compatibility
+      - **Error Scenarios**: Missing config.yaml, invalid YAML syntax, missing required fields, invalid data types, missing API key from .env
+      - **Reproducibility Testing**: Verify set_seed(42) produces identical numpy.random and random.random results across multiple runs
+    </standards>
+    <locations>
+      - Unit tests: tests/epic1/test_config.py (to be created)
+      - Unit tests: tests/epic1/test_reproducibility.py (to be created)
+      - Test fixtures: tests/fixtures/config.yaml (sample valid config)
+      - Test fixtures: tests/fixtures/invalid_config.yaml (for error testing)
+    </locations>
+    <ideas>
+      <test id="AC-1" criteria="Configuration File Created">
+        - Manual verification: config.yaml exists in project root
+        - Verify all 5 sections present: dataset, clustering, embedding, classification, metrics
+        - Verify all required parameters with correct values (n_clusters=4, random_state=42, model='gemini-embedding-001', output_dimensionality=768)
+      </test>
+      <test id="AC-2" criteria="Config Class Loads and Validates">
+        - Unit test: Config() initializes without errors
+        - Unit test: config.get("clustering.n_clusters") returns 4
+        - Unit test: config.get("embedding.model") returns "gemini-embedding-001"
+        - Unit test: config.get("embedding.output_dimensionality") returns 768
+        - Integration test: config.gemini_api_key retrieves from .env
+        - Unit test: config.validate() returns True for valid config
+        - Unit test: All sections accessible via get() method
+      </test>
+      <test id="AC-3" criteria="Invalid Configuration Error Handling">
+        - Unit test: Missing config.yaml raises FileNotFoundError with clear message
+        - Unit test: Invalid YAML syntax raises helpful error
+        - Unit test: Missing required field raises ValueError with field name
+        - Unit test: Invalid data type raises TypeError with expected type
+        - Integration test: Missing API key raises clear error: "GEMINI_API_KEY not found. Copy .env.example to .env and add your API key."
+      </test>
+      <test id="AC-4" criteria="Paths System Functionality">
+        - Unit test: All path attributes exist (data, data_raw, data_embeddings, data_interim, data_processed, models, notebooks, reports, reports_figures, results)
+        - Integration test: Directories created if missing (verify with os.path.exists)
+        - Unit test: All paths are absolute (Path.is_absolute())
+        - Unit test: Path operations use pathlib.Path
+      </test>
+      <test id="AC-5" criteria="Reproducibility Utility">
+        - Unit test: set_seed(42) followed by np.random.rand(10) produces identical results on second call
+        - Unit test: set_seed(42) followed by random.random() produces identical results on second call
+        - Documentation test: Verify docstring explains K-Means uses separate random_state parameter
+      </test>
+    </ideas>
+  </tests>
+</story-context>

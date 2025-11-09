@@ -1,6 +1,6 @@
 # Story 1.2: Configuration Management System
 
-Status: drafted
+Status: ready-for-dev
 
 ## Story
 
@@ -268,7 +268,7 @@ context-aware-multi-agent-system/
 
 ### Context Reference
 
-<!-- Path(s) to story context XML will be added here by context workflow -->
+- [Story Context](1-2-configuration-management-system.context.xml) - Generated 2025-11-09
 
 ### Agent Model Used
 
