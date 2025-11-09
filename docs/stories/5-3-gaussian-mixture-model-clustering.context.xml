@@ -1,0 +1,272 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>5</epicId>
+    <storyId>3</storyId>
+    <title>Gaussian Mixture Model Clustering</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-09</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/5-3-gaussian-mixture-model-clustering.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>data mining student</asA>
+    <iWant>to apply Gaussian Mixture Models for probabilistic clustering</iWant>
+    <soThat>I can compare soft clustering (probabilistic assignments) with hard clustering (K-Means) approaches and evaluate GMM performance on high-dimensional text embeddings</soThat>
+    <tasks>
+      - Task 1: Implement GMM Clustering Module (AC: 1-4)
+      - Task 2: Covariance Type Comparison (AC: 2)
+      - Task 3: Extract Probabilistic Assignments (AC: 3-4)
+      - Task 4: Uncertainty Analysis (AC: 6)
+      - Task 5: GMM-Specific Metrics Calculation (AC: 5)
+      - Task 6: Standard Clustering Metrics (AC: 7)
+      - Task 7: Create GMM Execution Script (AC: 8)
+      - Task 8: Save Results and Validate (AC: 9)
+      - Task 9: Testing and Validation
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC1">
+      <given>document embeddings are generated and cached (from Story 2.1)</given>
+      <when>I run GMM clustering algorithm</when>
+      <then>GMM is applied with parameters: n_components=4, covariance_type='full', random_state=42, max_iter=100</then>
+    </criterion>
+    <criterion id="AC2">
+      <description>Alternative covariance types are tested: 'full', 'tied', 'diag', 'spherical' with BIC/AIC comparison</description>
+    </criterion>
+    <criterion id="AC3">
+      <description>Probabilistic cluster assignments are extracted: hard assignments (argmax), soft assignments (full probability distribution), assignment confidence (max probability)</description>
+    </criterion>
+    <criterion id="AC4">
+      <description>Cluster assignments saved to data/processed/gmm_assignments.csv with columns: document_id, cluster_id, cluster_0_prob, cluster_1_prob, cluster_2_prob, cluster_3_prob, assignment_confidence, ground_truth_category, covariance_type</description>
+    </criterion>
+    <criterion id="AC5">
+      <description>GMM-specific metrics calculated: log-likelihood, BIC, AIC, component weights (mixing coefficients)</description>
+    </criterion>
+    <criterion id="AC6">
+      <description>Uncertainty analysis performed: identify low-confidence documents (&lt;0.5), analyze confusion between cluster pairs, compare with ground truth</description>
+    </criterion>
+    <criterion id="AC7">
+      <description>Standard clustering quality metrics computed: Silhouette Score, Davies-Bouldin Index, cluster purity</description>
+    </criterion>
+    <criterion id="AC8">
+      <description>Convergence information logged (iterations, final log-likelihood)</description>
+    </criterion>
+    <criterion id="AC9">
+      <description>All results saved to results/gmm_metrics.json</description>
+    </criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/tech-spec-epic-5.md</path>
+        <title>Epic Technical Specification: Alternative Clustering Algorithms Exploration</title>
+        <section>Story 5.3: Gaussian Mixture Model Implementation</section>
+        <snippet>Gaussian Mixture Model Implementation (Story 5.3): Apply probabilistic soft clustering. Test multiple covariance types (full, tied, diag, spherical). Extract both hard and soft cluster assignments. Analyze assignment confidence and uncertainty patterns.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-5.md</path>
+        <title>Epic Technical Specification: Alternative Clustering Algorithms Exploration</title>
+        <section>GMM Clustering API</section>
+        <snippet>GMMClustering class with fit_predict() returning labels, probabilities, BIC, AIC; compare_covariance_types() for testing full/tied/diag/spherical covariance matrices with BIC/AIC model selection.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-5.md</path>
+        <title>Epic Technical Specification: Alternative Clustering Algorithms Exploration</title>
+        <section>Data Models - GMM Assignments</section>
+        <snippet>data/processed/gmm_assignments.csv schema: document_id, cluster_id (hard), cluster_0_prob, cluster_1_prob, cluster_2_prob, cluster_3_prob, assignment_confidence, ground_truth_category, covariance_type.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-5.md</path>
+        <title>Epic Technical Specification: Alternative Clustering Algorithms Exploration</title>
+        <section>Performance - GMM Performance Targets</section>
+        <snippet>Single GMM fit: &lt;10 minutes. Covariance type comparison (4 types): &lt;1 hour total. Probability extraction: &lt;1 minute. Convergence: max_iter=100 should be sufficient.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture - Context-Aware Multi-Agent System</title>
+        <section>Decision Summary</section>
+        <snippet>Clustering Algorithm: scikit-learn K-Means ≥1.7.2. K-Means Config: n_clusters=4, init='k-means++', random_state=42, max_iter=300. Cluster Evaluation: Silhouette Score, Davies-Bouldin Index from sklearn.metrics.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture - Context-Aware Multi-Agent System</title>
+        <section>Embedding Configuration</section>
+        <snippet>Embedding Model: gemini-embedding-001, 768 dimensions. Embedding Storage: numpy .npy files (numpy ≥1.24). Configuration Format: YAML (config.yaml) with PyYAML ≥6.0.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>src/context_aware_multi_agent_system/evaluation/clustering_metrics.py</path>
+        <kind>module</kind>
+        <symbol>ClusteringMetrics</symbol>
+        <lines>1-150</lines>
+        <reason>Reuse existing metrics infrastructure for Silhouette Score, Davies-Bouldin Index, and cluster purity calculation. GMM will use same evaluation methodology as K-Means for fair comparison.</reason>
+      </artifact>
+      <artifact>
+        <path>src/context_aware_multi_agent_system/models/clustering.py</path>
+        <kind>module</kind>
+        <symbol>KMeansClustering</symbol>
+        <lines>1-100</lines>
+        <reason>Reference existing K-Means implementation pattern for consistency. GMM wrapper should follow similar structure with __init__, fit_predict, and evaluation methods.</reason>
+      </artifact>
+      <artifact>
+        <path>data/embeddings/train_embeddings.npy</path>
+        <kind>data</kind>
+        <symbol>train_embeddings</symbol>
+        <lines>-</lines>
+        <reason>Same 120K × 768 embeddings used by K-Means. Critical for fair algorithm comparison. Pre-cached from Epic 1.</reason>
+      </artifact>
+      <artifact>
+        <path>src/context_aware_multi_agent_system/data/load_dataset.py</path>
+        <kind>module</kind>
+        <symbol>load_ag_news</symbol>
+        <lines>1-50</lines>
+        <reason>Load ground truth labels for cluster purity calculation and uncertainty analysis against AG News categories.</reason>
+      </artifact>
+      <artifact>
+        <path>scripts/02_train_clustering.py</path>
+        <kind>script</kind>
+        <symbol>main</symbol>
+        <lines>1-100</lines>
+        <reason>Reference K-Means training script pattern for GMM execution script structure (load embeddings → fit → save results).</reason>
+      </artifact>
+      <artifact>
+        <path>scripts/03_evaluate_clustering.py</path>
+        <kind>script</kind>
+        <symbol>main</symbol>
+        <lines>1-80</lines>
+        <reason>Reference evaluation script for metrics calculation workflow (load results → compute metrics → save JSON).</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <python>
+        <package name="scikit-learn" version=">=1.7.2" ecosystem="pypi">
+          <module>sklearn.mixture.GaussianMixture</module>
+          <module>sklearn.metrics.silhouette_score</module>
+          <module>sklearn.metrics.davies_bouldin_score</module>
+        </package>
+        <package name="numpy" version=">=1.24.0" ecosystem="pypi">
+          <usage>Array operations, embeddings storage (.npy), probability distribution handling</usage>
+        </package>
+        <package name="pandas" version=">=2.0.0" ecosystem="pypi">
+          <usage>DataFrame for covariance comparison results, CSV output for cluster assignments</usage>
+        </package>
+      </python>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint category="architecture">Use same embeddings as K-Means (data/embeddings/train_embeddings.npy) for reproducibility and fair comparison</constraint>
+    <constraint category="architecture">Follow same evaluation methodology as K-Means: Silhouette Score, Davies-Bouldin Index, cluster purity using ClusteringMetrics class</constraint>
+    <constraint category="architecture">Maintain consistent data formats: .npy for arrays, .csv for assignments, .json for metrics</constraint>
+    <constraint category="reproducibility">Use random_state=42 for GaussianMixture initialization to ensure reproducible results</constraint>
+    <constraint category="performance">Single GMM fit must complete in &lt;10 minutes on 120K × 768 embeddings</constraint>
+    <constraint category="performance">Full covariance type comparison (4 types) must complete in &lt;1 hour total</constraint>
+    <constraint category="validation">Validate all probabilities in [0, 1] range and sum to ≈1.0 per document</constraint>
+    <constraint category="validation">Validate BIC/AIC values are finite (not NaN or Inf)</constraint>
+    <constraint category="code-quality">Follow PEP 8 style, use type hints, include comprehensive docstrings</constraint>
+    <constraint category="code-quality">Use existing project patterns: match structure of KMeansClustering in src/models/clustering.py</constraint>
+    <constraint category="testing">Test on small sample (1K documents) first for quick validation before running on full 120K dataset</constraint>
+    <constraint category="high-dimensional">Handle potential convergence warnings gracefully (GMM may struggle in 768D space)</constraint>
+    <constraint category="high-dimensional">Document any convergence issues or instabilities—negative results are academically valuable</constraint>
+  </constraints>
+  <interfaces>
+    <interface>
+      <name>GMMClustering.__init__</name>
+      <kind>class-constructor</kind>
+      <signature>def __init__(self, n_components: int = 4, covariance_type: str = 'full', random_state: int = 42)</signature>
+      <path>src/models/gmm_clustering.py (to be created)</path>
+      <description>Initialize Gaussian Mixture Model with specified number of components, covariance type, and random seed</description>
+    </interface>
+    <interface>
+      <name>GMMClustering.fit_predict</name>
+      <kind>method</kind>
+      <signature>def fit_predict(self, embeddings: np.ndarray) -> Tuple[np.ndarray, np.ndarray, float, float]</signature>
+      <path>src/models/gmm_clustering.py (to be created)</path>
+      <description>Fit GMM and return (labels, probabilities, bic, aic). Labels are hard assignments (argmax). Probabilities are soft assignments (n_samples, n_components).</description>
+    </interface>
+    <interface>
+      <name>GMMClustering.compare_covariance_types</name>
+      <kind>method</kind>
+      <signature>def compare_covariance_types(self, embeddings: np.ndarray, types: List[str]) -> pd.DataFrame</signature>
+      <path>src/models/gmm_clustering.py (to be created)</path>
+      <description>Compare multiple covariance types, returning DataFrame with columns: covariance_type, bic, aic, silhouette_score, runtime</description>
+    </interface>
+    <interface>
+      <name>ClusteringMetrics.calculate_metrics</name>
+      <kind>method</kind>
+      <signature>def calculate_metrics(self) -> Dict[str, Any]</signature>
+      <path>src/context_aware_multi_agent_system/evaluation/clustering_metrics.py</path>
+      <description>EXISTING: Calculate Silhouette Score, Davies-Bouldin Index, cluster purity. Reuse for GMM evaluation.</description>
+    </interface>
+    <interface>
+      <name>numpy.load</name>
+      <kind>function</kind>
+      <signature>np.load(file: str) -> np.ndarray</signature>
+      <path>numpy</path>
+      <description>Load cached embeddings from data/embeddings/train_embeddings.npy (120000, 768) shape, float32 dtype</description>
+    </interface>
+    <interface>
+      <name>pandas.DataFrame.to_csv</name>
+      <kind>method</kind>
+      <signature>df.to_csv(path: str, index: bool = False)</signature>
+      <path>pandas</path>
+      <description>Save cluster assignments to data/processed/gmm_assignments.csv with schema: document_id, cluster_id, cluster_*_prob, assignment_confidence, ground_truth_category, covariance_type</description>
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>
+      Unit Testing: pytest framework (pytest >=7.4.0) for module-level tests.
+      Integration Testing: Test full GMM pipeline on small sample (1K documents) before full dataset.
+      Validation Testing: Schema validation for CSV outputs, probability validation (sum to 1.0), metric validation (finite values).
+      Performance Testing: Benchmark runtime on sample, extrapolate to full dataset to verify &lt;1 hour target for covariance comparison.
+      Reproducibility Testing: Run twice with same random_state=42, verify identical outputs.
+      Test Patterns: Follow existing test structure in tests/ directory (if exists), mimic K-Means test coverage.
+    </standards>
+    <locations>
+      tests/test_gmm_clustering.py (to be created)
+      tests/test_integration_gmm.py (to be created for end-to-end workflow)
+    </locations>
+    <ideas>
+      <test id="AC1" criteria="AC1">
+        <description>Test GMM initialization with n_components=4, covariance_type='full', random_state=42</description>
+        <approach>Unit test: Verify GMMClustering.__init__ sets correct sklearn.mixture.GaussianMixture parameters</approach>
+      </test>
+      <test id="AC2" criteria="AC2">
+        <description>Test covariance type comparison returns DataFrame with all 4 types tested</description>
+        <approach>Unit test: Call compare_covariance_types(['full', 'tied', 'diag', 'spherical']), verify DataFrame has 4 rows with BIC/AIC columns</approach>
+      </test>
+      <test id="AC3" criteria="AC3">
+        <description>Test probability distributions are valid (sum to 1.0, all values in [0,1])</description>
+        <approach>Unit test: After fit_predict, verify np.allclose(probabilities.sum(axis=1), 1.0) and np.all((probabilities >= 0) &amp; (probabilities &lt;= 1))</approach>
+      </test>
+      <test id="AC4" criteria="AC4">
+        <description>Test CSV output schema matches specification</description>
+        <approach>Integration test: Load gmm_assignments.csv, verify columns exist: document_id, cluster_id, cluster_0_prob through cluster_3_prob, assignment_confidence, ground_truth_category, covariance_type</approach>
+      </test>
+      <test id="AC5-AC6" criteria="AC5,AC6">
+        <description>Test uncertainty analysis identifies low-confidence documents correctly</description>
+        <approach>Integration test: Filter assignments where assignment_confidence &lt; 0.5, verify logic matches max(probabilities) per row</approach>
+      </test>
+      <test id="AC7" criteria="AC7">
+        <description>Test standard metrics (Silhouette, Davies-Bouldin, purity) calculated correctly</description>
+        <approach>Integration test: Use ClusteringMetrics class with GMM labels, verify all metrics returned and are finite</approach>
+      </test>
+      <test id="AC9" criteria="AC9">
+        <description>Test results saved to JSON with all required fields</description>
+        <approach>Integration test: Load results/gmm_metrics.json, verify keys: bic, aic, silhouette_score, davies_bouldin_index, cluster_purity, convergence_iterations, runtime_seconds</approach>
+      </test>
+      <test id="PERF" criteria="Performance">
+        <description>Test runtime performance meets targets</description>
+        <approach>Performance test: Run on 1K sample, measure time, extrapolate to 120K. Single fit should project to &lt;10 min, 4 covariance types to &lt;1 hour</approach>
+      </test>
+      <test id="REPRO" criteria="Reproducibility">
+        <description>Test reproducibility with random_state=42</description>
+        <approach>Run fit_predict twice with same parameters, verify labels and probabilities are byte-identical using np.array_equal</approach>
+      </test>
+    </ideas>
+  </tests>
+</story-context>
