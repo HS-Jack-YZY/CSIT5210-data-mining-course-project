@@ -277,10 +277,62 @@ This script will:
    - Documents visualized: 120,000
    - Variance explained: 0.3% (PC1: 0.2%, PC2: 0.2%)
    - Output: visualizations/cluster_pca.png (300 DPI)
-   - Execution time: 1.0s
 ```
 
+### 5. Cluster Analysis and Labeling
+
+Analyze clusters and generate semantic labels based on ground truth categories:
+
+```bash
+python scripts/05_analyze_clusters.py
+```
+
+This script will:
+- Map each cluster to its dominant AG News category (World, Sports, Business, Sci/Tech)
+- Calculate cluster purity metrics (% documents matching dominant category)
+- Extract 10 representative documents closest to each centroid
+- Compute category distribution for each cluster
+- Generate human-readable analysis report
+- Export cluster labels to JSON
+
+**Expected Output:**
+```
+📊 Starting cluster analysis and labeling...
+📊 Mapping clusters to dominant categories...
+✅ Cluster 0: Sports (25.3%)
+✅ Cluster 1: World (25.4%)
+✅ Cluster 2: Business (25.3%)
+✅ Cluster 3: World (25.1%)
+📊 Calculating cluster purity...
+✅ Average cluster purity: 25.3%
+⚠️ Average purity 25.3% below target 70%
+📊 Extracting representative documents...
+✅ Extracted 40 representative documents (10 per cluster)
+📊 Generating cluster analysis report...
+✅ Report saved: results/cluster_analysis.txt
+📊 Exporting cluster labels to JSON...
+✅ Labels saved: results/cluster_labels.json
+✅ Cluster Analysis Complete
+   - Clusters analyzed: 4
+   - Average purity: 25.3%
+   - Total documents: 120,000
+   - Representative docs: 40 (10 per cluster)
+   - Report: results/cluster_analysis.txt
+   - Labels: results/cluster_labels.json
+```
+
+**Purity Interpretation:**
+- Purity >70%: Good clustering (clusters align well with semantic categories)
+- Purity 50-70%: Fair clustering (moderate alignment)
+- Purity <50%: Poor clustering (clusters don't capture semantic boundaries well)
+
 **Output Files:**
+- `results/cluster_analysis.txt`: Human-readable report with cluster summaries and representative documents
+- `results/cluster_labels.json`: Structured JSON with cluster labels, purity scores, and category distributions
+
+---
+
+### Next Steps (Epic 3)
 - `visualizations/cluster_pca.png` - Static scatter plot (300 DPI, publication quality)
 - `visualizations/cluster_pca.html` - Interactive Plotly visualization (optional, requires plotly)
 
