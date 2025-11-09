@@ -1,6 +1,6 @@
 # Story 1.1: Project Initialization and Environment Setup
 
-Status: review
+Status: done
 
 ## Story
 
@@ -28,7 +28,7 @@ so that **I can begin implementing clustering and classification algorithms with
 - ✅ `python3.10 -m venv venv` succeeds without errors
 - ✅ Virtual environment activates successfully
 - ✅ `pip install -r requirements.txt` completes without errors
-- ✅ All imports succeed: `import google.genai, sklearn, numpy, pandas, datasets, matplotlib, seaborn, yaml, dotenv, tenacity`
+- ✅ All imports succeed: `from google import genai` and `import sklearn, numpy, pandas, datasets, matplotlib, seaborn, yaml, dotenv, tenacity`
 
 ## Tasks / Subtasks
 
@@ -233,6 +233,12 @@ Claude Sonnet 4.5 (claude-sonnet-4-5-20250929)
 - Created: Project directory structure (8 directories, 8 __init__.py files)
 - Modified: .gitignore (added data/ exclusion with .gitkeep exception)
 
+**Code Review Follow-up (2025-11-09):**
+- ✅ Resolved review finding [Medium]: Updated AC-2 import statement documentation to use official `from google import genai` syntax
+- ✅ Updated both story file and context file with correct import statement
+- ✅ Verified all imports work correctly with updated syntax
+- ✅ All action items from code review addressed and validated
+
 ### File List
 
 **Created Files:**
@@ -267,6 +273,13 @@ Claude Sonnet 4.5 (claude-sonnet-4-5-20250929)
 - venv/
 
 ## Change Log
+
+**2025-11-09** - v1.2 - Code review findings resolved
+- Updated AC-2 import statement to use official `from google import genai` syntax
+- Updated context file (1-1-project-initialization-and-environment-setup.context.xml) with correct import
+- Verified all imports work correctly
+- Action item M-1 resolved and marked complete
+- Story ready for completion
 
 **2025-11-09** - v1.1 - Senior Developer Review notes appended
 - Senior Developer Review (AI) section added
@@ -482,11 +495,13 @@ The project demonstrates excellent security practices:
 
 #### Code Changes Required:
 
-- [ ] [Med] Update AC-2 import statement documentation (AC #2) [file: docs/stories/1-1-project-initialization-and-environment-setup.md:32]
-  - Change: `import google.genai` → `import google.genai`
-  - Rationale: Matches actual installed package (google-genai) and prevents developer confusion
-  - Location: Line 32 in AC-2 acceptance criteria
-  - Also update Story Context AC-2 if it contains the same error [file: docs/stories/1-1-project-initialization-and-environment-setup.context.xml:86]
+- [x] [Med] Update AC-2 import statement documentation (AC #2) [file: docs/stories/1-1-project-initialization-and-environment-setup.md:32]
+  - Change: Updated to use official recommended syntax `from google import genai`
+  - Rationale: Matches google-genai SDK official documentation and prevents developer confusion
+  - Location: Line 31 in AC-2 acceptance criteria (updated)
+  - Story Context AC-2 also updated at line 86 [file: docs/stories/1-1-project-initialization-and-environment-setup.context.xml:86]
+  - **Resolution Date:** 2025-11-09
+  - **Verified:** All imports tested successfully
 
 #### Advisory Notes:
 

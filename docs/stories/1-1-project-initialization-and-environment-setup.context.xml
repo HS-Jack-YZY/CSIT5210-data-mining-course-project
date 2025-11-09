@@ -83,7 +83,7 @@
 - ✅ `python3.10 -m venv venv` succeeds without errors
 - ✅ Virtual environment activates successfully
 - ✅ `pip install -r requirements.txt` completes without errors
-- ✅ All imports succeed: `import google.generativeai, sklearn, numpy, pandas, datasets, matplotlib, seaborn, yaml, dotenv, tenacity`
+- ✅ All imports succeed: `from google import genai` and `import sklearn, numpy, pandas, datasets, matplotlib, seaborn, yaml, dotenv, tenacity`
   </acceptanceCriteria>
 
   <artifacts>
