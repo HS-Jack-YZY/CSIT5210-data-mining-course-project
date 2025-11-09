@@ -28,7 +28,7 @@ so that **I can begin implementing clustering and classification algorithms with
 - ✅ `python3.10 -m venv venv` succeeds without errors
 - ✅ Virtual environment activates successfully
 - ✅ `pip install -r requirements.txt` completes without errors
-- ✅ All imports succeed: `import google.generativeai, sklearn, numpy, pandas, datasets, matplotlib, seaborn, yaml, dotenv, tenacity`
+- ✅ All imports succeed: `import google.genai, sklearn, numpy, pandas, datasets, matplotlib, seaborn, yaml, dotenv, tenacity`
 
 ## Tasks / Subtasks
 
@@ -117,7 +117,7 @@ ls -la  # Should show data/, src/, notebooks/, reports/, results/, models/
 ls -la src/context_aware_multi_agent_system/  # Should show __init__.py and submodules
 
 # Verify dependencies
-python -c "import google.generativeai; import sklearn; import numpy; import pandas; print('✅ All dependencies installed')"
+python -c "import google.genai; import sklearn; import numpy; import pandas; print('✅ All dependencies installed')"
 
 # Verify .gitignore
 cat .gitignore | grep -E '(\.env|data/|\.pyc|__pycache__|\.ipynb_checkpoints)'
@@ -214,7 +214,7 @@ Claude Sonnet 4.5 (claude-sonnet-4-5-20250929)
 
 **Key Decisions:**
 - Integrated project structure into existing `report/` repository (contains docs, bmad framework)
-- Corrected import for google-genai: uses `google.genai` not `google.generativeai`
+- Corrected import for google-genai: uses `google.genai` not `google.genai`
 - All dependencies installed successfully in virtual environment
 
 ### Completion Notes
@@ -292,14 +292,14 @@ Story 1.1 successfully establishes the foundational project structure and enviro
 #### MEDIUM Severity Issues
 
 **M-1: Incorrect import statement in AC-2 documentation**
-- **Location:** AC-2 line: "All imports succeed: `import google.generativeai, sklearn, numpy...`"
-- **Issue:** The documented import uses `google.generativeai` but the installed package `google-genai>=0.3.0` requires `import google.genai` (not `google.generativeai`)
+- **Location:** AC-2 line: "All imports succeed: `import google.genai, sklearn, numpy...`"
+- **Issue:** The documented import uses `google.genai` but the installed package `google-genai>=0.3.0` requires `import google.genai` (not `google.genai`)
 - **Evidence:** 
   - [requirements.txt:2](../requirements.txt#L2) - Lists `google-genai>=0.3.0`
-  - [Story Dev Notes:211](1-1-project-initialization-and-environment-setup.md#L211) - Correctly notes: "Corrected import for google-genai: uses `google.genai` not `google.generativeai`"
+  - [Story Dev Notes:211](1-1-project-initialization-and-environment-setup.md#L211) - Correctly notes: "Corrected import for google-genai: uses `google.genai` not `google.genai`"
   - Actual test confirms correct import: `python -c "import google.genai"` succeeds
 - **Impact:** Future developers following AC-2 documentation will encounter import errors, causing confusion
-- **Recommendation:** Update AC-2 to reflect correct import: `import google.genai` instead of `import google.generativeai`
+- **Recommendation:** Update AC-2 to reflect correct import: `import google.genai` instead of `import google.genai`
 
 ### Acceptance Criteria Coverage
 
@@ -483,7 +483,7 @@ The project demonstrates excellent security practices:
 #### Code Changes Required:
 
 - [ ] [Med] Update AC-2 import statement documentation (AC #2) [file: docs/stories/1-1-project-initialization-and-environment-setup.md:32]
-  - Change: `import google.generativeai` → `import google.genai`
+  - Change: `import google.genai` → `import google.genai`
   - Rationale: Matches actual installed package (google-genai) and prevents developer confusion
   - Location: Line 32 in AC-2 acceptance criteria
   - Also update Story Context AC-2 if it contains the same error [file: docs/stories/1-1-project-initialization-and-environment-setup.context.xml:86]
