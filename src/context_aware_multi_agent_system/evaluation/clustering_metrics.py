@@ -12,6 +12,54 @@ from sklearn.metrics.pairwise import euclidean_distances
 logger = logging.getLogger(__name__)
 
 
+def calculate_purity(labels: np.ndarray, ground_truth: np.ndarray) -> float:
+    """
+    Calculate overall cluster purity against ground truth labels.
+
+    Args:
+        labels: Cluster labels (n_samples,) - cluster IDs (0+) or noise (-1 for DBSCAN)
+        ground_truth: Ground truth labels (n_samples,) - true category labels
+
+    Returns:
+        Overall purity score (0-1), weighted by cluster sizes
+
+    Example:
+        >>> labels = np.array([0, 0, 1, 1, 2, 2])
+        >>> ground_truth = np.array([0, 0, 1, 1, 0, 1])
+        >>> purity = calculate_purity(labels, ground_truth)
+        >>> # purity = (2/2 + 2/2 + 1/2) / 3 = 0.833
+    """
+    if len(labels) != len(ground_truth):
+        raise ValueError(
+            f"Label count ({len(labels)}) != ground truth count ({len(ground_truth)})"
+        )
+
+    unique_labels = np.unique(labels)
+    weighted_sum = 0.0
+    total_documents = 0
+
+    for cluster_id in unique_labels:
+        cluster_mask = (labels == cluster_id)
+        cluster_ground_truth = ground_truth[cluster_mask]
+        cluster_size = len(cluster_ground_truth)
+
+        if cluster_size == 0:
+            continue
+
+        # Count occurrences of each ground truth category in this cluster
+        category_counts = np.bincount(cluster_ground_truth)
+        dominant_count = category_counts.max()
+
+        # Purity = fraction of documents in dominant category
+        purity = dominant_count / cluster_size
+        weighted_sum += purity * cluster_size
+        total_documents += cluster_size
+
+    overall_purity = weighted_sum / total_documents if total_documents > 0 else 0.0
+
+    return float(overall_purity)
+
+
 class ClusteringMetrics:
     """Comprehensive cluster quality evaluation metrics."""
 

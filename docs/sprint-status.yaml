@@ -69,9 +69,9 @@ development_status:
   4-7-final-validation-and-testing: backlog
   epic-4-retrospective: optional
 
-  epic-5: backlog
-  5-1-dbscan-density-based-clustering: backlog
-  5-2-hierarchical-agglomerative-clustering: backlog
-  5-3-gaussian-mixture-model-clustering: backlog
+  epic-5: contexted
+  5-1-dbscan-density-based-clustering: review
+  5-2-hierarchical-agglomerative-clustering: review
+  5-3-gaussian-mixture-model-clustering: review
   5-4-comprehensive-clustering-algorithm-comparison: backlog
   epic-5-retrospective: optional
