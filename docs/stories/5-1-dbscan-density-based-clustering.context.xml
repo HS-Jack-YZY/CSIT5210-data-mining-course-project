@@ -1,0 +1,238 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>5</epicId>
+    <storyId>1</storyId>
+    <title>DBSCAN Density-Based Clustering</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-09</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/5-1-dbscan-density-based-clustering.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>data mining student</asA>
+    <iWant>to apply DBSCAN clustering to the AG News embeddings</iWant>
+    <soThat>I can evaluate whether density-based clustering performs better than K-Means on high-dimensional text data</soThat>
+    <tasks>
+      - Implement DBSCANClustering class in src/models/dbscan_clustering.py (AC: #1, #2, #4)
+      - Create DBSCAN clustering script scripts/06_alternative_clustering.py (AC: #1-#8)
+      - Implement cosine distance matrix computation (AC: #1)
+      - Implement parameter tuning loop (AC: #2)
+      - Implement cluster assignment saving (AC: #3)
+      - Implement cluster quality evaluation (AC: #4)
+      - Implement comparison with K-Means (AC: #6)
+      - Test DBSCAN clustering (AC: #1-#8)
+      - Update project documentation (AC: all)
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC-1">
+      <title>DBSCAN Clustering Execution</title>
+      <description>Successfully run DBSCAN on 120K embeddings using cosine distance, complete within 15 minutes, memory under 8GB, return cluster labels and core samples mask</description>
+    </criterion>
+    <criterion id="AC-2">
+      <title>Parameter Tuning Implementation</title>
+      <description>Test 12 parameter combinations (4 eps × 3 min_samples), select best based on Silhouette Score, save tuning results to CSV, complete within 3 hours</description>
+    </criterion>
+    <criterion id="AC-3">
+      <title>Cluster Assignment Storage</title>
+      <description>Save assignments to CSV with columns: document_id, cluster_id, ground_truth_category, is_core_sample. 120K rows, UTF-8 encoding</description>
+    </criterion>
+    <criterion id="AC-4">
+      <title>Cluster Quality Evaluation</title>
+      <description>Calculate Silhouette Score, Davies-Bouldin Index, cluster purity (non-noise only), track cluster count and noise percentage, save metrics to JSON</description>
+    </criterion>
+    <criterion id="AC-5">
+      <title>Performance and Runtime Tracking</title>
+      <description>Log start/end times, verify runtime &lt;15 minutes per run, &lt;3 hours for tuning, log memory usage, compare with K-Means runtime</description>
+    </criterion>
+    <criterion id="AC-6">
+      <title>Comparison with K-Means Results</title>
+      <description>Load K-Means metrics, create comparison table, save to CSV, log summary highlighting better algorithm and trade-offs</description>
+    </criterion>
+    <criterion id="AC-7">
+      <title>Logging and Observability</title>
+      <description>Emoji-prefixed logs for all major operations, progress updates during long operations, summary at completion with key metrics</description>
+    </criterion>
+    <criterion id="AC-8">
+      <title>Error Handling and Validation</title>
+      <description>Clear errors for missing files, warnings for edge cases (all noise, single cluster), validation for shapes, automatic directory creation</description>
+    </criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/tech-spec-epic-5.md</path>
+        <title>Epic Technical Specification: Alternative Clustering Algorithms Exploration</title>
+        <section>DBSCAN Implementation (Story 5.1)</section>
+        <snippet>Apply density-based clustering to AG News embeddings with parameter tuning for eps and min_samples. Handle noise points and variable cluster discovery using cosine distance metric.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-5.md</path>
+        <title>Epic 5 Technical Specification</title>
+        <section>Data Models and Contracts - DBSCAN Assignments</section>
+        <snippet>CSV format with columns: document_id (int), cluster_id (int, -1 for noise), ground_truth_category (str), is_core_sample (bool). Expected 120K rows.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-5.md</path>
+        <title>Epic 5 Technical Specification</title>
+        <section>APIs and Interfaces - DBSCANClustering</section>
+        <snippet>DBSCANClustering class with fit_predict() returning labels and core_samples, and tune_parameters() for auto-tuning eps and min_samples by maximizing Silhouette Score.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture - Context-Aware Multi-Agent System</title>
+        <section>Decision Summary - Clustering and Evaluation</section>
+        <snippet>Uses scikit-learn for clustering algorithms, cosine similarity for text classification, Silhouette Score and Davies-Bouldin Index for cluster quality evaluation.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epic 5 - Alternative Clustering Algorithms</title>
+        <section>Story 5.1 - DBSCAN Density-Based Clustering</section>
+        <snippet>Implement DBSCAN clustering with cosine distance metric, parameter tuning (eps, min_samples), cluster quality evaluation, and comparison with K-Means baseline from Epic 2.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>src/context_aware_multi_agent_system/models/clustering.py</path>
+        <kind>model</kind>
+        <symbol>KMeansClustering</symbol>
+        <lines>N/A</lines>
+        <reason>Existing K-Means implementation - use as reference pattern for DBSCANClustering class structure</reason>
+      </artifact>
+      <artifact>
+        <path>src/context_aware_multi_agent_system/evaluation/clustering_metrics.py</path>
+        <kind>evaluation</kind>
+        <symbol>calculate_purity, calculate_silhouette_score</symbol>
+        <lines>N/A</lines>
+        <reason>Reuse cluster purity calculation and silhouette score evaluation functions for DBSCAN quality assessment</reason>
+      </artifact>
+      <artifact>
+        <path>src/context_aware_multi_agent_system/utils/reproducibility.py</path>
+        <kind>utility</kind>
+        <symbol>set_seed</symbol>
+        <lines>N/A</lines>
+        <reason>Call set_seed(42) at script start for reproducibility (though DBSCAN is deterministic)</reason>
+      </artifact>
+      <artifact>
+        <path>src/context_aware_multi_agent_system/config.py</path>
+        <kind>config</kind>
+        <symbol>Config</symbol>
+        <lines>N/A</lines>
+        <reason>Load configuration for DBSCAN parameters and paths</reason>
+      </artifact>
+      <artifact>
+        <path>src/context_aware_multi_agent_system/evaluation/cluster_analysis.py</path>
+        <kind>evaluation</kind>
+        <symbol>ClusterAnalyzer</symbol>
+        <lines>N/A</lines>
+        <reason>Reuse ClusterAnalyzer for purity analysis and cluster quality assessment (from Story 2.5)</reason>
+      </artifact>
+      <artifact>
+        <path>data/embeddings/train_embeddings.npy</path>
+        <kind>data</kind>
+        <symbol>N/A</symbol>
+        <lines>N/A</lines>
+        <reason>Input embeddings (120K × 768 float32) from Story 2.1, required for DBSCAN clustering</reason>
+      </artifact>
+      <artifact>
+        <path>results/cluster_quality.json</path>
+        <kind>data</kind>
+        <symbol>N/A</symbol>
+        <lines>N/A</lines>
+        <reason>K-Means metrics from Story 2.3 for comparison with DBSCAN results</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <python>
+        <package name="scikit-learn" version=">=1.7.2">Provides DBSCAN implementation and metrics (silhouette_score, davies_bouldin_score)</package>
+        <package name="numpy" version=">=1.24.0">Array operations and .npy file I/O</package>
+        <package name="pandas" version=">=2.0.0">DataFrames for parameter tuning results and comparison tables</package>
+        <package name="datasets" version=">=2.14.0">Load AG News ground truth labels</package>
+      </python>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>Performance: Single DBSCAN run must complete within 15 minutes on 120K documents (NFR-1 from Epic 5 tech spec)</constraint>
+    <constraint>Performance: Parameter tuning (12 combinations) must complete within 3 hours total</constraint>
+    <constraint>Memory: Must operate under 8GB RAM (standard laptop hardware)</constraint>
+    <constraint>Reproducibility: Use random_state=42 for all operations where applicable (deterministic results)</constraint>
+    <constraint>Distance Metric: Must use cosine distance (not Euclidean) - appropriate for text embeddings</constraint>
+    <constraint>Data Reuse: Must use same embeddings as K-Means (data/embeddings/train_embeddings.npy) for fair comparison</constraint>
+    <constraint>Evaluation Consistency: Must use same metrics as K-Means (Silhouette Score, Davies-Bouldin Index, cluster purity)</constraint>
+    <constraint>Code Style: Follow PEP 8, use type hints, Google-style docstrings, emoji-prefixed logging</constraint>
+    <constraint>File Formats: .npy for arrays, .csv for assignments, .json for metrics (consistent with Epic 2)</constraint>
+    <constraint>Initialization Order: set_seed → load config → setup logger → validate → execute</constraint>
+    <constraint>File Naming: snake_case for modules (dbscan_clustering.py), PascalCase for classes (DBSCANClustering)</constraint>
+    <constraint>No Hardcoded Values: All parameters must come from config.yaml</constraint>
+  </constraints>
+  <interfaces>
+    <interface>
+      <name>DBSCANClustering.__init__</name>
+      <kind>class constructor</kind>
+      <signature>def __init__(self, eps: float = 0.5, min_samples: int = 5, metric: str = 'cosine')</signature>
+      <path>src/context_aware_multi_agent_system/models/dbscan_clustering.py</path>
+    </interface>
+    <interface>
+      <name>DBSCANClustering.fit_predict</name>
+      <kind>method</kind>
+      <signature>def fit_predict(self, embeddings: np.ndarray) -> Tuple[np.ndarray, np.ndarray]</signature>
+      <path>src/context_aware_multi_agent_system/models/dbscan_clustering.py</path>
+    </interface>
+    <interface>
+      <name>DBSCANClustering.tune_parameters</name>
+      <kind>method</kind>
+      <signature>def tune_parameters(self, embeddings: np.ndarray, eps_range: List[float], min_samples_range: List[int]) -> Tuple[float, int, pd.DataFrame]</signature>
+      <path>src/context_aware_multi_agent_system/models/dbscan_clustering.py</path>
+    </interface>
+    <interface>
+      <name>sklearn.cluster.DBSCAN</name>
+      <kind>external library</kind>
+      <signature>DBSCAN(eps=0.5, min_samples=5, metric='precomputed')</signature>
+      <path>scikit-learn</path>
+    </interface>
+    <interface>
+      <name>sklearn.metrics.pairwise.cosine_distances</name>
+      <kind>external function</kind>
+      <signature>cosine_distances(X) -> np.ndarray</signature>
+      <path>scikit-learn</path>
+    </interface>
+    <interface>
+      <name>calculate_purity</name>
+      <kind>function</kind>
+      <signature>def calculate_purity(labels: np.ndarray, ground_truth: np.ndarray) -> float</signature>
+      <path>src/context_aware_multi_agent_system/evaluation/clustering_metrics.py</path>
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>
+      Use pytest for unit and integration testing. Follow existing test patterns from Epic 2 (tests/test_clustering.py). Test coverage should include: (1) Unit tests for DBSCANClustering class methods, (2) Integration tests for full pipeline, (3) Performance tests for runtime targets, (4) Edge case tests (all noise, single cluster, missing files). All tests use fixtures for setup (mock data, temp directories). Map tests to acceptance criteria (AC-1, AC-2, etc.).
+    </standards>
+    <locations>
+      - tests/ (root test directory)
+      - tests/epic5/ (Epic 5 specific tests)
+      - tests/epic5/test_dbscan_clustering.py (DBSCAN unit tests)
+      - tests/epic5/test_06_alternative_clustering.py (integration tests)
+    </locations>
+    <ideas>
+      <idea ac="AC-1">Test DBSCAN initialization with various eps/min_samples values</idea>
+      <idea ac="AC-1">Test fit_predict returns correct output shapes: labels (n_samples,), core_samples (n_samples,)</idea>
+      <idea ac="AC-1">Test cosine distance matrix computation: symmetric, diagonal=0, range [0,2]</idea>
+      <idea ac="AC-2">Test parameter tuning covers all 12 combinations (4 eps × 3 min_samples)</idea>
+      <idea ac="AC-2">Test best parameter selection logic (max Silhouette, fallback to min noise ratio)</idea>
+      <idea ac="AC-3">Test cluster assignments CSV schema: correct columns, 120K rows, UTF-8 encoding</idea>
+      <idea ac="AC-4">Test metrics calculation with noise filtering (exclude label -1 from Silhouette/Davies-Bouldin)</idea>
+      <idea ac="AC-4">Test edge case: all noise points (Silhouette=None, warning logged)</idea>
+      <idea ac="AC-4">Test edge case: single cluster (Silhouette=None, warning logged)</idea>
+      <idea ac="AC-5">Performance test: Single DBSCAN run completes in &lt;15 minutes</idea>
+      <idea ac="AC-5">Performance test: Parameter tuning completes in &lt;3 hours</idea>
+      <idea ac="AC-6">Test comparison CSV generation with both K-Means and DBSCAN metrics</idea>
+      <idea ac="AC-8">Test missing embeddings file raises FileNotFoundError with helpful message</idea>
+      <idea ac="AC-8">Test wrong embedding shape raises ValueError</idea>
+      <idea ac="AC-8">Test automatic directory creation for output paths</idea>
+    </ideas>
+  </tests>
+</story-context>
