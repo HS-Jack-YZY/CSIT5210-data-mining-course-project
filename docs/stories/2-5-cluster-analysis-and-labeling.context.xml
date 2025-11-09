@@ -1,0 +1,338 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>2</epicId>
+    <storyId>5</storyId>
+    <title>Cluster Analysis and Labeling</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-09</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/2-5-cluster-analysis-and-labeling.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>data mining student</asA>
+    <iWant>to analyze and semantically label each cluster</iWant>
+    <soThat>I understand what topics each cluster represents</soThat>
+    <tasks>
+      - Implement ClusterAnalyzer class in src/evaluation/cluster_analysis.py
+      - Create cluster analysis script scripts/05_analyze_clusters.py
+      - Implement cluster-to-category mapping (AC-1)
+      - Implement cluster purity calculation (AC-3)
+      - Implement representative document extraction (AC-2, AC-7)
+      - Implement category distribution analysis (AC-6)
+      - Generate cluster analysis text report (AC-4)
+      - Export cluster labels JSON (AC-5)
+      - Optional: Implement misclassification analysis (AC-10)
+      - Test cluster analysis (all ACs)
+      - Update project documentation
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC-1">
+      <title>Cluster-to-Category Mapping</title>
+      <description>Each cluster (0-3) is mapped to its dominant AG News category using majority voting. Cluster purity >70% indicates good semantic coherence.</description>
+    </criterion>
+    <criterion id="AC-2">
+      <title>Representative Document Extraction</title>
+      <description>For each cluster, extract 10 documents closest to centroid ranked by Euclidean distance. Total 40 representative documents providing clear semantic themes.</description>
+    </criterion>
+    <criterion id="AC-3">
+      <title>Cluster Purity Calculation</title>
+      <description>Calculate cluster purity for each cluster and overall average. Purity >70% indicates good alignment, &lt;50% indicates poor clustering.</description>
+    </criterion>
+    <criterion id="AC-4">
+      <title>Cluster Analysis Report Generation</title>
+      <description>Generate human-readable report saved to results/cluster_analysis.txt including cluster summaries, representative documents, and overall statistics.</description>
+    </criterion>
+    <criterion id="AC-5">
+      <title>Cluster Labels JSON Export</title>
+      <description>Export cluster labels to results/cluster_labels.json with mapping, purity scores, cluster sizes, and category distributions.</description>
+    </criterion>
+    <criterion id="AC-6">
+      <title>Category Distribution Analysis</title>
+      <description>Compute percentage of documents from each AG News category per cluster. Generate confusion-like matrix showing cluster-category alignment.</description>
+    </criterion>
+    <criterion id="AC-7">
+      <title>Representative Document Ranking</title>
+      <description>Documents sorted by Euclidean distance to centroid. Closest document represents most typical example of cluster.</description>
+    </criterion>
+    <criterion id="AC-8">
+      <title>Logging and Observability</title>
+      <description>Emoji-prefixed logs for visual clarity with timing information for all major operations.</description>
+    </criterion>
+    <criterion id="AC-9">
+      <title>Error Handling</title>
+      <description>Clear error messages for missing files, shape mismatches, and low purity warnings. Automatic directory creation.</description>
+    </criterion>
+    <criterion id="AC-10">
+      <title>Optional Misclassified Document Analysis</title>
+      <description>Identify misclassified documents, calculate patterns, and save to results/cluster_misclassifications.txt.</description>
+    </criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/tech-spec-epic-2.md</path>
+        <title>Epic 2 Technical Specification</title>
+        <section>Cluster Analysis and Labeling</section>
+        <snippet>Story 2-5 implements cluster labeling by mapping clusters to AG News categories using majority voting, calculating cluster purity (target >70%), and extracting representative documents closest to centroids.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-2.md</path>
+        <title>Epic 2 Technical Specification</title>
+        <section>Services and Modules</section>
+        <snippet>ClusteringMetrics module (src/evaluation/clustering_metrics.py) provides cluster quality evaluation. ClusterPlots module (src/visualization/cluster_plots.py) generates PCA visualizations.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-2.md</path>
+        <title>Epic 2 Technical Specification</title>
+        <section>Data Models - Cluster Labels</section>
+        <snippet>Cluster assignments stored in data/processed/cluster_assignments.csv with schema: document_id, cluster_id, category_label. Cluster labels are int32 values [0-3], centroids stored as (4, 768) float32 arrays.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>System Architecture</title>
+        <section>Evaluation Components</section>
+        <snippet>Cluster analysis validates semantic coherence by mapping clusters to ground truth categories and measuring purity scores to ensure clustering quality.</snippet>
+      </doc>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Product Requirements Document</title>
+        <section>FR-4: Cluster Quality Evaluation</section>
+        <snippet>System must evaluate clustering quality using silhouette score, purity metrics, and visual inspection to ensure semantic clusters enable effective cost optimization.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>src/context_aware_multi_agent_system/models/clustering.py</path>
+        <kind>model</kind>
+        <symbol>KMeansClustering</symbol>
+        <lines>entire file</lines>
+        <reason>Clustering model that produces cluster assignments and centroids needed for analysis</reason>
+      </artifact>
+      <artifact>
+        <path>src/context_aware_multi_agent_system/evaluation/clustering_metrics.py</path>
+        <kind>evaluation</kind>
+        <symbol>ClusteringMetrics</symbol>
+        <lines>entire file</lines>
+        <reason>Existing clustering evaluation patterns to follow for purity calculation</reason>
+      </artifact>
+      <artifact>
+        <path>src/context_aware_multi_agent_system/visualization/cluster_plots.py</path>
+        <kind>visualization</kind>
+        <symbol>ClusterPlots</symbol>
+        <lines>entire file</lines>
+        <reason>Visualization patterns for cluster analysis results</reason>
+      </artifact>
+      <artifact>
+        <path>src/context_aware_multi_agent_system/config.py</path>
+        <kind>configuration</kind>
+        <symbol>Config</symbol>
+        <lines>entire file</lines>
+        <reason>Configuration management class with get() method for analysis parameters</reason>
+      </artifact>
+      <artifact>
+        <path>src/context_aware_multi_agent_system/utils/reproducibility.py</path>
+        <kind>utility</kind>
+        <symbol>set_seed</symbol>
+        <lines>entire file</lines>
+        <reason>Reproducibility function to call at script start</reason>
+      </artifact>
+      <artifact>
+        <path>scripts/02_train_clustering.py</path>
+        <kind>script</kind>
+        <symbol>main orchestration</symbol>
+        <lines>entire file</lines>
+        <reason>Script pattern to follow for cluster analysis orchestration</reason>
+      </artifact>
+      <artifact>
+        <path>scripts/03_evaluate_clustering.py</path>
+        <kind>script</kind>
+        <symbol>evaluation orchestration</symbol>
+        <lines>entire file</lines>
+        <reason>Evaluation script pattern including logging and error handling</reason>
+      </artifact>
+      <artifact>
+        <path>data/processed/cluster_assignments.csv</path>
+        <kind>data</kind>
+        <symbol>cluster labels</symbol>
+        <lines>N/A</lines>
+        <reason>Input: Cluster assignments from Story 2.2 with schema document_id, cluster_id, category_label</reason>
+      </artifact>
+      <artifact>
+        <path>data/processed/centroids.npy</path>
+        <kind>data</kind>
+        <symbol>centroids</symbol>
+        <lines>N/A</lines>
+        <reason>Input: Cluster centroids (4, 768) float32 from Story 2.2 for distance calculations</reason>
+      </artifact>
+      <artifact>
+        <path>data/embeddings/train_embeddings.npy</path>
+        <kind>data</kind>
+        <symbol>embeddings</symbol>
+        <lines>N/A</lines>
+        <reason>Input: Document embeddings (120000, 768) float32 from Story 2.1 for representative document extraction</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <python>
+        <package name="numpy" version=">=1.24.0" usage="Array operations, distance calculations, data storage" />
+        <package name="pandas" version=">=2.0.0" usage="CSV loading, data manipulation, category distribution" />
+        <package name="scikit-learn" version=">=1.7.2" usage="Euclidean distance calculations (sklearn.metrics.pairwise)" />
+        <package name="datasets" version=">=2.14.0" usage="Loading AG News ground truth labels" />
+        <package name="PyYAML" version=">=6.0" usage="Configuration file parsing" />
+        <package name="matplotlib" version=">=3.7.0" usage="Optional: Enhanced visualization if needed" />
+      </python>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint type="performance">Analysis and report generation must complete in under 2 minutes for 120K documents (NFR-1 from PRD)</constraint>
+    <constraint type="reproducibility">Fixed random_state=42 ensures deterministic results. Call set_seed(42) at script start.</constraint>
+    <constraint type="logging">Use emoji-prefixed logging (📊, ✅, ⚠️, ❌) from previous stories for consistency</constraint>
+    <constraint type="error-handling">Validate input file existence and data schema before analysis. Provide clear error messages with troubleshooting guidance.</constraint>
+    <constraint type="architecture">Follow Cookiecutter Data Science structure: src/evaluation/ for analysis logic, scripts/ for execution, results/ for outputs</constraint>
+    <constraint type="code-style">snake_case for modules (cluster_analysis.py), PascalCase for classes (ClusterAnalyzer), all type hints required, Google-style docstrings</constraint>
+    <constraint type="initialization">Initialization order: set_seed → load config → setup logger → validate inputs → execute analysis</constraint>
+    <constraint type="data-loading">Data loading pattern: Check file exists → load → validate shape/dtype → process</constraint>
+    <constraint type="configuration">No hardcoded values - all parameters from config.yaml</constraint>
+    <constraint type="purity-threshold">Target cluster purity >70%. Warn if below threshold but don't fail execution.</constraint>
+    <constraint type="file-paths">All paths in outputs must be project-relative (e.g., "docs/prd.md" not absolute paths)</constraint>
+  </constraints>
+  <interfaces>
+    <interface>
+      <name>ClusterAnalyzer.__init__</name>
+      <kind>class constructor</kind>
+      <signature>def __init__(self, labels: np.ndarray, embeddings: np.ndarray, centroids: np.ndarray, ground_truth: np.ndarray)</signature>
+      <path>src/evaluation/cluster_analysis.py</path>
+    </interface>
+    <interface>
+      <name>ClusterAnalyzer.map_clusters_to_categories</name>
+      <kind>method</kind>
+      <signature>def map_clusters_to_categories(self) -> dict[int, str]</signature>
+      <path>src/evaluation/cluster_analysis.py</path>
+    </interface>
+    <interface>
+      <name>ClusterAnalyzer.calculate_cluster_purity</name>
+      <kind>method</kind>
+      <signature>def calculate_cluster_purity(self) -> dict</signature>
+      <path>src/evaluation/cluster_analysis.py</path>
+    </interface>
+    <interface>
+      <name>ClusterAnalyzer.extract_representative_documents</name>
+      <kind>method</kind>
+      <signature>def extract_representative_documents(self, cluster_id: int, k: int = 10) -> list[dict]</signature>
+      <path>src/evaluation/cluster_analysis.py</path>
+    </interface>
+    <interface>
+      <name>ClusterAnalyzer.get_category_distribution</name>
+      <kind>method</kind>
+      <signature>def get_category_distribution(self, cluster_id: int) -> dict[str, float]</signature>
+      <path>src/evaluation/cluster_analysis.py</path>
+    </interface>
+    <interface>
+      <name>ClusterAnalyzer.generate_analysis_report</name>
+      <kind>method</kind>
+      <signature>def generate_analysis_report(self, output_path: Path) -> Path</signature>
+      <path>src/evaluation/cluster_analysis.py</path>
+    </interface>
+    <interface>
+      <name>Data File: cluster_assignments.csv</name>
+      <kind>CSV input</kind>
+      <signature>Schema: document_id (int), cluster_id (int [0-3]), category_label (str)</signature>
+      <path>data/processed/cluster_assignments.csv</path>
+    </interface>
+    <interface>
+      <name>Data File: centroids.npy</name>
+      <kind>NumPy array input</kind>
+      <signature>Shape: (4, 768), dtype: float32</signature>
+      <path>data/processed/centroids.npy</path>
+    </interface>
+    <interface>
+      <name>Data File: train_embeddings.npy</name>
+      <kind>NumPy array input</kind>
+      <signature>Shape: (120000, 768), dtype: float32</signature>
+      <path>data/embeddings/train_embeddings.npy</path>
+    </interface>
+    <interface>
+      <name>Output File: cluster_analysis.txt</name>
+      <kind>Text report output</kind>
+      <signature>Human-readable report with cluster summaries, representative documents, statistics</signature>
+      <path>results/cluster_analysis.txt</path>
+    </interface>
+    <interface>
+      <name>Output File: cluster_labels.json</name>
+      <kind>JSON output</kind>
+      <signature>Schema: {timestamp, n_clusters, n_documents, average_purity, clusters: {cluster_id: {label, purity, size, dominant_category, distribution}}}</signature>
+      <path>results/cluster_labels.json</path>
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>
+      Testing framework: pytest with fixtures for test setup. Follow existing pattern from tests/epic2/ directory.
+      Test organization: Unit tests for ClusterAnalyzer class methods, integration tests for full pipeline execution.
+      Test naming: test_*.py files, Test* classes, test_* functions with descriptive names mapping to acceptance criteria.
+      Coverage target: All ClusterAnalyzer methods, all edge cases (missing files, shape mismatches, low purity).
+      Test data: Use small synthetic datasets for unit tests (e.g., 100 documents, 4 clusters), full dataset for integration tests.
+      Validation patterns: Use pytest.raises() for exception testing, assert statements for value validation, fixtures for mock data.
+    </standards>
+    <locations>
+      - tests/epic2/test_cluster_analysis.py (new file for unit tests)
+      - tests/epic2/test_cluster_analysis_pipeline.py (new file for integration tests)
+    </locations>
+    <ideas>
+      <test id="AC-1">
+        <name>test_map_clusters_to_categories</name>
+        <description>Unit test: Verify cluster-to-category mapping with synthetic data. Cluster 0 has 80% Sports → maps to "Sports".</description>
+        <acceptance_criteria>AC-1</acceptance_criteria>
+      </test>
+      <test id="AC-3">
+        <name>test_calculate_cluster_purity</name>
+        <description>Unit test: Known purity 0.8 (8/10 Sports in cluster) → output purity 0.8. Validate range [0, 1].</description>
+        <acceptance_criteria>AC-3</acceptance_criteria>
+      </test>
+      <test id="AC-2">
+        <name>test_extract_representative_documents</name>
+        <description>Unit test: Extract 10 representatives per cluster, verify sorted by distance, closest first.</description>
+        <acceptance_criteria>AC-2</acceptance_criteria>
+      </test>
+      <test id="AC-6">
+        <name>test_category_distribution</name>
+        <description>Unit test: Category distribution sums to ~1.0, all categories represented.</description>
+        <acceptance_criteria>AC-6</acceptance_criteria>
+      </test>
+      <test id="AC-4">
+        <name>test_generate_analysis_report</name>
+        <description>Integration test: Generate report, verify file exists, has correct format and sections.</description>
+        <acceptance_criteria>AC-4</acceptance_criteria>
+      </test>
+      <test id="AC-5">
+        <name>test_export_cluster_labels_json</name>
+        <description>Integration test: Verify JSON schema, n_clusters=4, purity >0.70 for all clusters.</description>
+        <acceptance_criteria>AC-5</acceptance_criteria>
+      </test>
+      <test id="AC-9">
+        <name>test_missing_cluster_assignments_error</name>
+        <description>Negative test: Missing cluster_assignments.csv → FileNotFoundError with clear message.</description>
+        <acceptance_criteria>AC-9</acceptance_criteria>
+      </test>
+      <test id="AC-9">
+        <name>test_shape_mismatch_error</name>
+        <description>Negative test: Labels count ≠ embeddings count → ValueError with helpful context.</description>
+        <acceptance_criteria>AC-9</acceptance_criteria>
+      </test>
+      <test id="AC-8">
+        <name>test_low_purity_warning</name>
+        <description>Integration test: Purity &lt;70% → logs warning but doesn't fail execution.</description>
+        <acceptance_criteria>AC-8</acceptance_criteria>
+      </test>
+      <test id="performance">
+        <name>test_analysis_performance</name>
+        <description>Performance test: Full 120K analysis completes in &lt;2 minutes.</description>
+        <acceptance_criteria>NFR-1</acceptance_criteria>
+      </test>
+    </ideas>
+  </tests>
+</story-context>
