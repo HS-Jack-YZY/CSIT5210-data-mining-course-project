@@ -69,6 +69,94 @@ cp .env.example .env
 # Edit .env and add your GEMINI_API_KEY
 ```
 
+## Configuration
+
+The project uses a centralized configuration system to manage all experimental parameters. Configuration is split between two files:
+
+### config.yaml (Committed to Git)
+
+Contains all experimental parameters for reproducible research:
+
+```yaml
+# Dataset Configuration
+dataset:
+  name: "ag_news"
+  categories: 4
+  sample_size: null  # null = use full dataset
+
+# Clustering Configuration
+clustering:
+  algorithm: "kmeans"
+  n_clusters: 4
+  random_state: 42
+  max_iter: 300
+  init: "k-means++"
+
+# Embedding Configuration
+embedding:
+  model: "gemini-embedding-001"
+  batch_size: 100
+  cache_dir: "data/embeddings"
+  output_dimensionality: 768
+
+# Classification Configuration
+classification:
+  method: "cosine_similarity"
+  threshold: 0.7
+
+# Metrics Configuration
+metrics:
+  cost_per_1M_tokens_under_200k: 3.0
+  cost_per_1M_tokens_over_200k: 6.0
+  target_cost_reduction: 0.90
+```
+
+### .env (Not Committed - Contains Secrets)
+
+Contains API keys and sensitive credentials:
+
+```bash
+GEMINI_API_KEY=your_api_key_here
+```
+
+### Using Configuration in Code
+
+```python
+from context_aware_multi_agent_system.config import Config, Paths
+
+# Load configuration
+config = Config()
+
+# Access configuration parameters with dot notation
+n_clusters = config.get("clustering.n_clusters")  # Returns 4
+model_name = config.get("embedding.model")  # Returns "gemini-embedding-001"
+api_key = config.gemini_api_key  # Loads from .env
+
+# Validate configuration
+config.validate()  # Raises errors for missing/invalid fields
+
+# Access all project paths
+paths = Paths()
+data_file = paths.data_raw / "ag_news.csv"
+model_file = paths.models / "kmeans_model.pkl"
+```
+
+### Reproducibility
+
+All experiments use fixed random seeds for reproducible results:
+
+```python
+from context_aware_multi_agent_system.utils.reproducibility import set_seed
+
+# Set random seeds at the beginning of your script
+set_seed(42)
+
+# Now all random operations are deterministic
+# K-Means clustering will produce identical results across runs
+```
+
+**Note**: scikit-learn algorithms use separate `random_state` parameters, which are loaded from `config.yaml`.
+
 ## Usage
 
 (To be added as features are implemented)

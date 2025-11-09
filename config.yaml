@@ -1,0 +1,39 @@
+# Configuration file for Context-Aware Multi-Agent News Classification System
+# This file contains all experimental parameters for reproducible research
+
+# Dataset Configuration
+# Specifies which dataset to use and how to sample it
+dataset:
+  name: "ag_news"  # AG News dataset (4 news categories)
+  categories: 4  # Number of news categories: World, Sports, Business, Sci/Tech
+  sample_size: null  # null = use full dataset; set integer to limit samples for testing
+
+# Clustering Configuration
+# K-Means algorithm parameters for unsupervised category discovery
+clustering:
+  algorithm: "kmeans"  # Clustering algorithm (currently only K-Means supported)
+  n_clusters: 4  # Number of clusters (matches number of news categories)
+  random_state: 42  # Fixed seed for reproducible clustering results
+  max_iter: 300  # Maximum iterations for K-Means convergence
+  init: "k-means++"  # Initialization method (k-means++ for better initial centroids)
+
+# Embedding Configuration
+# Google Gemini API settings for text embedding generation
+embedding:
+  model: "gemini-embedding-001"  # Gemini embedding model (768-dimensional vectors)
+  batch_size: 100  # Number of texts to embed per API request (balance speed vs rate limits)
+  cache_dir: "data/embeddings"  # Directory to cache embeddings (avoid re-generating)
+  output_dimensionality: 768  # Embedding vector dimensions (fixed by gemini-embedding-001)
+
+# Classification Configuration
+# Multi-agent classification system parameters
+classification:
+  method: "cosine_similarity"  # Similarity metric for agent-based classification
+  threshold: 0.7  # Minimum similarity score to assign a category (0-1 scale)
+
+# Metrics Configuration
+# Cost analysis and performance tracking parameters
+metrics:
+  cost_per_1M_tokens_under_200k: 3.0  # Gemini API cost (USD) for batches < 200k tokens
+  cost_per_1M_tokens_over_200k: 6.0  # Gemini API cost (USD) for batches >= 200k tokens
+  target_cost_reduction: 0.90  # Target: 90% cost reduction vs. baseline (dimensionality reduction + caching)
