@@ -47,7 +47,7 @@ development_status:
   2-1-batch-embedding-generation-with-caching: done
   2-2-k-means-clustering-implementation: done
   2-3-cluster-quality-evaluation: done
-  2-4-pca-cluster-visualization: backlog
+  2-4-pca-cluster-visualization: drafted
   2-5-cluster-analysis-and-labeling: backlog
   epic-2-retrospective: optional
 
