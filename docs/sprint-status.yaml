@@ -71,7 +71,7 @@ development_status:
 
   epic-5: contexted
   5-1-dbscan-density-based-clustering: review
-  5-2-hierarchical-agglomerative-clustering: review
-  5-3-gaussian-mixture-model-clustering: review
+  5-2-hierarchical-agglomerative-clustering: done
+  5-3-gaussian-mixture-model-clustering: done
   5-4-comprehensive-clustering-algorithm-comparison: backlog
   epic-5-retrospective: optional
