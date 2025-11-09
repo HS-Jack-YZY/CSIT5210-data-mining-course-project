@@ -44,7 +44,7 @@ development_status:
   epic-1-retrospective: completed
 
   epic-2: contexted
-  2-1-batch-embedding-generation-with-caching: review
+  2-1-batch-embedding-generation-with-caching: done
   2-2-k-means-clustering-implementation: backlog
   2-3-cluster-quality-evaluation: backlog
   2-4-pca-cluster-visualization: backlog
