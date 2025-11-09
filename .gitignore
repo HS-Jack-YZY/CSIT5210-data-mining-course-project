@@ -67,6 +67,8 @@ Thumbs.db
 *.ipynb_checkpoints
 
 # Data Files (可能很大的数据集)
+data/
+!data/.gitkeep
 *.csv
 *.tsv
 *.json
@@ -74,8 +76,6 @@ Thumbs.db
 *.parquet
 *.pkl
 *.pickle
-data/raw/
-data/processed/
 datasets/
 *.h5
 *.hdf5

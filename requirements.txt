@@ -1,0 +1,28 @@
+# Gemini Embedding API
+google-genai>=0.3.0
+
+# Machine Learning Core
+scikit-learn>=1.7.2
+numpy>=1.24.0
+pandas>=2.0.0
+
+# Dataset
+datasets>=2.14.0
+
+# Visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Configuration
+PyYAML>=6.0
+python-dotenv>=1.0.0
+
+# Utilities
+tenacity>=8.0.0
+
+# Development Tools
+pytest>=7.4.0
+ruff>=0.1.0
+
+# Jupyter Notebooks
+jupyter>=1.0.0
