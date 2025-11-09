@@ -1,0 +1,250 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>3</epicId>
+    <storyId>1</storyId>
+    <title>Specialized Agent Implementation</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-09</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/3-1-specialized-agent-implementation.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>data mining student</asA>
+    <iWant>specialized agents that each maintain only documents from one cluster</iWant>
+    <soThat>I can demonstrate context reduction for cost optimization</soThat>
+    <tasks>
+      - Implement SpecializedAgent class in `src/models/agent.py` (AC: #3.1.1, #3.1.5)
+        - Create `src/context_aware_multi_agent_system/models/agent.py` file
+        - Import required modules: typing, logging, numpy, pandas
+        - Define `SpecializedAgent` class with PascalCase naming
+        - Implement `__init__(cluster_id: int, documents: List[dict], cluster_label: str)` method with validation and logging
+        - Implement `get_context_size() -> int` method
+        - Implement `get_documents() -> List[dict]` method
+        - Implement `get_metadata() -> dict` method
+        - Add comprehensive Google-style docstrings to all methods
+        - Add type hints to all method signatures
+        - Add `__all__ = ['SpecializedAgent']` export list
+
+      - Create agent initialization script `scripts/06_initialize_agents.py` (AC: #3.1.2, #3.1.3, #3.1.4, #3.1.6, #3.1.7)
+        - Import required modules and set seed for reproducibility
+        - Load configuration, cluster assignments, cluster labels, and AG News documents
+        - Validate inputs (file existence, shape consistency, cluster_id range)
+        - For each cluster_id in [0, 1, 2, 3], create SpecializedAgent instance
+        - Build agent registry as `Dict[int, SpecializedAgent]`
+        - Calculate baseline and per-agent context sizes
+        - Calculate context reduction percentages
+        - Save agent metadata to `results/agent_metadata.json`
+        - Log completion summary
+
+      - Implement agent registry creation function (AC: #3.1.2, #3.1.4, #3.1.7)
+      - Calculate and validate context reduction (AC: #3.1.6)
+      - Test agent implementation (AC: #3.1.1 through #3.1.7)
+      - Update project documentation (AC: all)
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    AC-3.1.1: SpecializedAgent Class Implementation
+    - `SpecializedAgent` class implemented in `src/models/agent.py`
+    - Class includes required methods: `__init__`, `get_context_size()`, `get_documents()`, `get_metadata()`
+    - Class follows architecture patterns: PascalCase class name, snake_case methods, type hints on all methods
+    - Google-style docstrings with usage examples for all methods
+    - Module includes `__all__` export list
+
+    AC-3.1.2: Four Agent Instances Created
+    - Exactly 4 agent instances created (one per cluster, IDs 0-3)
+    - Agent registry created as `Dict[int, SpecializedAgent]`
+    - Registry keys are [0, 1, 2, 3] matching cluster IDs
+
+    AC-3.1.3: Cluster-Specific Document Assignment
+    - Each agent assigned ONLY documents from its cluster
+    - Agent 0 contains ~30K documents (cluster_id=0)
+    - Agent 1 contains ~30K documents (cluster_id=1)
+    - Agent 2 contains ~30K documents (cluster_id=2)
+    - Agent 3 contains ~30K documents (cluster_id=3)
+    - Total documents across all agents = 120,000
+    - No document appears in multiple agents (strict partitioning)
+
+    AC-3.1.4: Agent Registry Pattern
+    - Registry implemented as `Dict[int, SpecializedAgent]`
+    - Registry maps cluster_id (0-3) to agent instance
+    - Registry supports O(1) lookup by cluster_id
+    - Registry immutable after initialization
+
+    AC-3.1.5: Agent Initialization Logging
+    - Each agent logs initialization with emoji-prefixed message
+    - Log includes: cluster_id, cluster_label, num_documents, context_size_chars
+    - Log format: "📊 Initialized Agent {cluster_id} ({cluster_label}): {num_docs:,} documents, {context_size_chars:,} chars"
+    - All 4 initialization logs emitted during registry creation
+    - Logs use INFO level for visibility
+
+    AC-3.1.6: Context Size Reduction Calculation
+    - Baseline context size calculated (all 120,000 documents)
+    - Per-agent context size calculated (~30,000 documents each)
+    - Context reduction percentage computed: `1 - (agent_context / baseline_context)`
+    - Reduction approximately 75% (1 - 1/4) for each agent
+    - Reduction metric logged with clear messaging
+    - Results saved to metadata for reporting
+
+    AC-3.1.7: Agent Registry Accessibility
+    - All agents accessible via registry with correct cluster_id mapping
+    - `registry[0]` returns Agent 0 (Sports)
+    - `registry[1]` returns Agent 1 (World)
+    - `registry[2]` returns Agent 2 (Business)
+    - `registry[3]` returns Agent 3 (Sci/Tech)
+    - Invalid cluster_id raises KeyError with informative message
+    - Registry supports iteration: `for cluster_id, agent in registry.items()`
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/tech-spec-epic-3.md</path>
+        <title>Epic Technical Specification: Multi-Agent Classification System</title>
+        <section>Overview and Detailed Design</section>
+        <snippet>Epic 3 implements the Multi-Agent Classification System with three key components: (1) Specialized Agents holding documents from single clusters (~30K instead of 120K), (2) Cosine Similarity Classification Engine for query routing, and (3) Agent Router orchestrating the pipeline. Includes SpecializedAgent class design with methods: __init__, get_context_size(), get_documents(), get_metadata().</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture - Context-Aware Multi-Agent System</title>
+        <section>Project Initialization and Decision Summary</section>
+        <snippet>Cookiecutter Data Science v2 structure with Python 3.10, scikit-learn for K-Means, Google Gemini API for embeddings. Code style: PEP 8 + Ruff, logging with emoji prefixes, YAML configuration, .env for secrets. Testing: pytest framework.</snippet>
+      </doc>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Product Requirements Document</title>
+        <section>Multi-Agent Classification System</section>
+        <snippet>FR-5: Implement specialized agents maintaining cluster-specific contexts. Context reduction target: 75% per agent (1/K where K=4). Performance: agent initialization &lt;5 seconds. Cost optimization: demonstrate 90%+ reduction through context partitioning.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>src/context_aware_multi_agent_system/models/clustering.py</path>
+        <kind>service</kind>
+        <symbol>KMeansClustering</symbol>
+        <lines>1-100</lines>
+        <reason>Reference implementation pattern for model classes - shows config-driven initialization, type hints, Google-style docstrings, and logging patterns to follow for SpecializedAgent</reason>
+      </artifact>
+      <artifact>
+        <path>src/context_aware_multi_agent_system/config.py</path>
+        <kind>service</kind>
+        <symbol>Config</symbol>
+        <lines>1-50</lines>
+        <reason>Configuration management class for accessing config.yaml parameters. Use config.get() method for agent-specific settings if needed</reason>
+      </artifact>
+      <artifact>
+        <path>src/context_aware_multi_agent_system/utils/reproducibility.py</path>
+        <kind>utility</kind>
+        <symbol>set_seed</symbol>
+        <lines>1-30</lines>
+        <reason>Reproducibility function to call at script start. Use set_seed(42) for deterministic agent initialization</reason>
+      </artifact>
+      <artifact>
+        <path>data/processed/cluster_assignments.csv</path>
+        <kind>data</kind>
+        <symbol>cluster_assignments</symbol>
+        <lines>N/A</lines>
+        <reason>Input file from Story 2.2 containing document_id and cluster_id columns. Required for filtering documents by cluster</reason>
+      </artifact>
+      <artifact>
+        <path>results/cluster_labels.json</path>
+        <kind>data</kind>
+        <symbol>cluster_labels</symbol>
+        <lines>N/A</lines>
+        <reason>Input file from Story 2.5 containing cluster ID to label mapping (Sports, World, Business, Sci/Tech). Required for agent initialization</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <python>
+        <package name="typing" version="built-in">Type hints: List, Dict, Tuple</package>
+        <package name="logging" version="built-in">Emoji-prefixed logging for agent initialization</package>
+        <package name="numpy" version=">=1.24.0">Array operations, context size calculations</package>
+        <package name="pandas" version=">=2.0.0">DataFrame operations for cluster assignments</package>
+        <package name="scikit-learn" version=">=1.7.2">Future: cosine_similarity for classification (Story 3.2)</package>
+        <package name="google-genai" version=">=0.3.0">Embedding generation service (already configured)</package>
+        <package name="datasets" version=">=2.14.0">AG News dataset loading (Story 1.3)</package>
+        <package name="PyYAML" version=">=6.0">Configuration file parsing</package>
+        <package name="python-dotenv" version=">=1.0.0">Environment variable management</package>
+      </python>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    - Performance: Agent initialization must complete in &lt;5 seconds for all 4 agents (NFR-1 from PRD)
+    - Reproducibility: Use set_seed(42) at script start for deterministic behavior
+    - Logging: Follow emoji-prefixed pattern (📊 INFO, ✅ SUCCESS, ⚠️ WARNING, ❌ ERROR)
+    - Error Handling: Validate input file existence and data schema before agent creation, fail-fast with actionable error messages
+    - Code Style: PascalCase for classes (SpecializedAgent), snake_case for methods/variables, type hints on all methods
+    - Documentation: Google-style docstrings with usage examples for all public methods
+    - File Naming: snake_case for modules (agent.py), follow Cookiecutter Data Science structure
+    - Configuration Access: No hardcoded values, use config.yaml for parameters
+    - Data Validation: Pre-flight checks for cluster_id range [0,3], non-empty documents, valid assignments
+    - Path Handling: Use project-relative paths in all file references
+    - Module Exports: Include __all__ list in agent.py to explicitly define public API
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>SpecializedAgent.__init__</name>
+      <kind>class constructor</kind>
+      <signature>__init__(self, cluster_id: int, documents: List[dict], cluster_label: str) -&gt; None</signature>
+      <path>src/context_aware_multi_agent_system/models/agent.py</path>
+      <description>Initialize specialized agent with cluster-specific documents. Validates cluster_id in [0,3], documents non-empty. Logs initialization with emoji prefix.</description>
+    </interface>
+    <interface>
+      <name>SpecializedAgent.get_context_size</name>
+      <kind>method</kind>
+      <signature>get_context_size(self) -&gt; int</signature>
+      <path>src/context_aware_multi_agent_system/models/agent.py</path>
+      <description>Calculate total character count across all agent documents. Returns integer character count.</description>
+    </interface>
+    <interface>
+      <name>SpecializedAgent.get_documents</name>
+      <kind>method</kind>
+      <signature>get_documents(self) -&gt; List[dict]</signature>
+      <path>src/context_aware_multi_agent_system/models/agent.py</path>
+      <description>Return copy of documents list to prevent external modification.</description>
+    </interface>
+    <interface>
+      <name>SpecializedAgent.get_metadata</name>
+      <kind>method</kind>
+      <signature>get_metadata(self) -&gt; dict</signature>
+      <path>src/context_aware_multi_agent_system/models/agent.py</path>
+      <description>Return agent metadata with keys: cluster_id, cluster_label, num_documents, context_size_chars.</description>
+    </interface>
+    <interface>
+      <name>create_agent_registry</name>
+      <kind>function</kind>
+      <signature>create_agent_registry(cluster_assignments_df: pd.DataFrame, documents: List[dict], cluster_labels: dict) -&gt; Dict[int, SpecializedAgent]</signature>
+      <path>src/context_aware_multi_agent_system/models/agent.py</path>
+      <description>Create registry of all specialized agents. Returns Dict mapping cluster_id (0-3) to SpecializedAgent instances.</description>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      Use pytest framework for all tests. Unit tests use synthetic small datasets. Integration tests use actual cluster assignments and AG News data. Test files follow pattern: tests/epic3/test_*.py. Map tests to acceptance criteria IDs (AC-3.1.1, AC-3.1.2, etc.). Use pytest.raises() for exception testing. Use fixtures for test setup (temp directories, mock data). Logging tests verify emoji-prefixed messages emitted. Performance tests validate agent creation &lt;5 seconds.
+    </standards>
+    <locations>
+      tests/epic3/test_agent.py (unit tests)
+      tests/epic3/test_agent_initialization.py (integration tests)
+    </locations>
+    <ideas>
+      - AC-3.1.1: test_specialized_agent_initialization - Verify agent creation with valid inputs, check attributes stored correctly
+      - AC-3.1.1: test_get_context_size - Verify character count calculation with known test data
+      - AC-3.1.1: test_get_documents_returns_copy - Verify returned list is copy, not reference (modify copy, check original unchanged)
+      - AC-3.1.1: test_get_metadata - Verify metadata dict contains correct keys and values
+      - AC-3.1.1: test_invalid_cluster_id - Verify ValueError raised for cluster_id out of range [0,3]
+      - AC-3.1.1: test_empty_documents - Verify ValueError raised when documents list is empty
+      - AC-3.1.2: test_agent_registry_creation - Create 4 agents from actual cluster assignments, verify registry has 4 entries with keys [0,1,2,3]
+      - AC-3.1.3: test_cluster_document_partitioning - Verify each agent has only documents from its cluster_id, no overlap between agents
+      - AC-3.1.3: test_total_documents_conservation - Verify sum of documents across all agents equals 120,000
+      - AC-3.1.4: test_registry_lookup_performance - Verify O(1) access time for registry[cluster_id]
+      - AC-3.1.5: test_initialization_logging - Capture logs during agent creation, verify emoji-prefixed format with cluster info
+      - AC-3.1.6: test_context_reduction_calculation - Calculate baseline context size, verify each agent has ~25% (tolerance ±5%)
+      - AC-3.1.7: test_registry_iteration - Verify registry.items() iteration works correctly
+      - Integration: test_full_agent_initialization_pipeline - Run scripts/06_initialize_agents.py, verify results/agent_metadata.json created with correct schema
+    </ideas>
+  </tests>
+</story-context>

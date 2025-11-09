@@ -52,7 +52,7 @@ development_status:
   epic-2-retrospective: completed
 
   epic-3: contexted
-  3-1-specialized-agent-implementation: backlog
+  3-1-specialized-agent-implementation: ready-for-dev
   3-2-cosine-similarity-classification-engine: backlog
   3-3-agent-router-with-query-routing: backlog
   3-4-classification-accuracy-measurement: backlog
