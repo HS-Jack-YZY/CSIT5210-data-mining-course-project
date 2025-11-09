@@ -1,10 +1,51 @@
-# Context-Aware Multi-Agent System
+# K-Means Clustering Experimental Study
 
-Multi-Agent collaborative system for cost-efficient text classification using K-Means clustering and cosine similarity routing.
+**CSIT5210 Data Mining Course Project**
+**Author:** Jack YUAN | **Date:** November 2025
+
+---
+
+## 📚 Quick Navigation
+
+**🎯 START HERE:** [Quick Reference Guide](docs/QUICK-REFERENCE.md) - 5-minute overview
+
+**📊 Main Deliverable:** [Experimental Report](docs/clustering-experimental-report.md) - Complete findings (18 pages)
+
+**📋 Project Scope:** [PRD](docs/PRD.md) - Requirements and scope update
+
+---
 
 ## Overview
 
-This project demonstrates how clustering and classification algorithms can solve LLM cost optimization challenges. The system uses K-Means clustering to partition 120K news articles into 4 semantic groups, then routes queries using cosine similarity classification to specialized agents containing only relevant context—reducing API costs by 90%+.
+This project presents a rigorous experimental study of K-Means clustering applied to the AG News dataset (120,000 news articles). The study evaluates clustering performance on high-dimensional text embeddings and provides comprehensive analysis of results, including negative findings.
+
+**Key Finding:** K-Means clustering failed to discover semantic structure in 768-dimensional Gemini embeddings, with performance indistinguishable from random assignment (cluster purity: 25.3% vs. random baseline: 25%).
+
+**Academic Value:** The study demonstrates rigorous experimental methodology, transparent reporting of negative results, and critical analysis of algorithm-task alignment in data mining.
+
+---
+
+## 📊 Experimental Results Summary
+
+| Metric | Target | Actual Result | Status |
+|--------|--------|---------------|--------|
+| Silhouette Score | >0.3 | 0.0008 | ❌ Failed (99.7% below target) |
+| Davies-Bouldin Index | <1.0 | 26.21 | ❌ Failed (26× above target) |
+| Cluster Purity | >70% | 25.3% | ❌ Failed (random-level) |
+| PCA Variance Explained | >20% | 0.3% | ❌ Failed (99.7% info loss) |
+| Cluster Balance | Balanced | ✅ Balanced | ✅ Passed |
+
+**Conclusion:** K-Means did not successfully discover semantic structure. All performance metrics indicate clustering quality equivalent to random assignment.
+
+**Root Causes Identified:**
+1. Curse of dimensionality (768D embeddings)
+2. Embedding-task mismatch (semantic similarity ≠ category clustering)
+3. K-Means algorithm limitations (Euclidean distance, spherical assumption)
+4. Fuzzy category boundaries in news data
+
+**Recommendations:** See [Section 5 of Experimental Report](docs/clustering-experimental-report.md#5-recommendations-for-future-work) for alternative approaches (cosine K-Means, DBSCAN, fine-tuned embeddings).
+
+---
 
 ## Project Structure
 

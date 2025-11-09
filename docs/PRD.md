@@ -1,29 +1,75 @@
-# Context-Aware Multi-Agent System for LLM Cost Optimization - Product Requirements Document
+# K-Means Clustering Experimental Study - Product Requirements Document
 
 **Author:** Jack YUAN
-**Date:** 2025-11-08
-**Version:** 1.0
+**Date Created:** 2025-11-08
+**Last Updated:** 2025-11-09
+**Version:** 2.0 (Scope Adjusted)
+
+---
+
+## 🔄 Project Scope Update (November 9, 2025)
+
+**Original Scope (v1.0):**
+Multi-Agent system with clustering, classification, and LLM cost optimization demonstration.
+
+**Revised Scope (v2.0):**
+Focused K-Means clustering experimental study on AG News dataset with rigorous evaluation and analysis.
+
+**Reason for Change:**
+Based on timeline constraints and preliminary results, the project scope was narrowed to focus on delivering a high-quality clustering experiment with comprehensive analysis rather than a full multi-agent system. This decision prioritizes:
+1. **Academic rigor** - Deep analysis of clustering performance
+2. **Honest reporting** - Transparent documentation of results (including negative findings)
+3. **Quality over quantity** - Complete experimental methodology instead of partial implementation
+
+**Impact on Deliverables:**
+- ✅ **Retained:** K-Means clustering, embedding generation, quality evaluation, visualization
+- ❌ **Removed:** Multi-agent routing, classification accuracy measurement, cost comparison baseline
+- ➕ **Added:** Extended discussion of clustering limitations, recommendations for future work
+
+**Updated Success Criteria:**
+The project now demonstrates mastery of:
+- Clustering algorithm implementation and evaluation
+- High-dimensional data analysis challenges
+- Scientific integrity in reporting negative results
+- Critical analysis of algorithm-task fit
+
+See [Experimental Report](./clustering-experimental-report.md) for complete findings.
 
 ---
 
 ## Executive Summary
 
-This project demonstrates how **clustering and classification algorithms** solve a critical real-world problem: reducing Large Language Model (LLM) API costs by 90%+ when processing long-context conversations. By applying K-Means clustering to partition documents into semantic groups and using cosine similarity classification to route queries to specialized agents, the system eliminates wasteful token consumption while maintaining response accuracy.
+This project presents a rigorous experimental study of **K-Means clustering** applied to text categorization using the AG News dataset. The study evaluates whether K-Means can effectively partition 120,000 news articles into semantically meaningful clusters corresponding to content categories (World, Sports, Business, Sci/Tech).
 
-**The Core Innovation:** Transform an expensive monolithic LLM call (sending 200K+ tokens every time) into intelligent routing that sends only 20K-40K relevant tokens—cutting costs by an order of magnitude.
+**Core Contribution:** A comprehensive analysis of clustering performance on high-dimensional text embeddings, including:
+- Implementation of K-Means with scikit-learn on 768-dimensional Gemini embeddings
+- Multi-metric evaluation (Silhouette Score, Davies-Bouldin Index, Cluster Purity)
+- PCA visualization of cluster structure
+- Critical analysis of algorithm limitations and failure modes
 
-**Academic Context:** Data Mining Course Project showcasing clustering and classification techniques applied to LLM cost optimization.
+**Academic Context:** CSIT5210 Data Mining Course Project demonstrating mastery of clustering algorithms, evaluation methodologies, and scientific reporting standards.
 
-### What Makes This Special
+### What Makes This Study Valuable
 
-**The Magic of Visualization:** When you see the cluster plot with 4 clearly separated semantic groups (World, Sports, Business, Sci/Tech), you immediately understand WHY this works. The visual separation proves that clustering captures meaningful semantic boundaries—and those boundaries drive the cost savings.
+**Academic Rigor:**
+This project exemplifies rigorous experimental methodology:
+1. **Comprehensive Evaluation** - Multiple complementary metrics (internal + external validation)
+2. **Transparent Reporting** - Honest documentation of negative results alongside methodology
+3. **Critical Analysis** - Deep investigation of why K-Means fails on high-dimensional text data
+4. **Reproducibility** - Complete parameter documentation and fixed random seeds
 
-**The "Wow" Moments:**
-1. **Visual Proof**: PCA visualization showing 4 distinct clusters with minimal overlap
-2. **Algorithmic Clarity**: Watching K-Means converge and cosine similarity classify queries with >80% accuracy
-3. **Cost Impact**: Baseline $180 (100 queries × $1.80) → Optimized $18 (100 queries × $0.18) = 90% reduction
+**Key Findings:**
+- K-Means clustering **failed to discover semantic structure** in AG News embeddings
+- Cluster purity (25.3%) is **statistically indistinguishable from random assignment** (25%)
+- Silhouette Score (0.0008) indicates **near-zero separation** between clusters
+- Root causes include curse of dimensionality, embedding-task mismatch, and algorithm limitations
 
-**Why This Resonates:** It's not just a technical exercise—it demonstrates how fundamental data mining techniques (clustering + classification) solve expensive real-world problems in the age of AI.
+**Why This Matters:**
+Negative results are as scientifically valuable as positive findings. This study:
+- Documents when K-Means is **not appropriate** for text clustering
+- Provides empirical evidence of algorithm limitations in high-dimensional spaces
+- Offers actionable recommendations for alternative approaches
+- Demonstrates professional integrity in academic research
 
 ---
 
