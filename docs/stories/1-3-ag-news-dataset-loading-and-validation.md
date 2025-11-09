@@ -1,6 +1,6 @@
 # Story 1.3: AG News Dataset Loading and Validation
 
-Status: drafted
+Status: ready-for-dev
 
 ## Story
 
@@ -344,7 +344,7 @@ context-aware-multi-agent-system/
 
 ### Context Reference
 
-<!-- Path(s) to story context XML will be added here by context workflow -->
+- [1-3-ag-news-dataset-loading-and-validation.context.xml](1-3-ag-news-dataset-loading-and-validation.context.xml)
 
 ### Agent Model Used
 

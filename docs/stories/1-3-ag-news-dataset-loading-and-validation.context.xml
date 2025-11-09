@@ -1,0 +1,275 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>3</storyId>
+    <title>AG News Dataset Loading and Validation</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-09</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/1-3-ag-news-dataset-loading-and-validation.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>data mining student</asA>
+    <iWant>to load and validate the AG News dataset</iWant>
+    <soThat>I have clean, structured data ready for embedding generation</soThat>
+    <tasks>
+      <task id="1" status="pending">Implement DatasetLoader class in src/context_aware_multi_agent_system/data/load_dataset.py</task>
+      <task id="2" status="pending">Implement text processing utilities</task>
+      <task id="3" status="pending">Implement sampling support</task>
+      <task id="4" status="pending">Implement caching verification</task>
+      <task id="5" status="pending">Add comprehensive logging</task>
+      <task id="6" status="pending">Test dataset loading workflow</task>
+      <task id="7" status="pending">Create DatasetLoadError exception class</task>
+      <task id="8" status="pending">Update documentation</task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC-1" title="AG News Dataset Loaded from Hugging Face">
+      <given>the Hugging Face datasets library is installed</given>
+      <when>I call DatasetLoader().load_ag_news()</when>
+      <then>
+        <item>Returns tuple of (train_dataset, test_dataset)</item>
+        <item>Train dataset has exactly 120,000 samples</item>
+        <item>Test dataset has exactly 7,600 samples</item>
+        <item>Dataset has fields: text, label</item>
+        <item>Labels are in range [0-3] (4 categories)</item>
+        <item>Dataset statistics are logged (sample counts, category distribution)</item>
+      </then>
+    </criterion>
+    <criterion id="AC-2" title="Dataset Structure Validated">
+      <given>Dataset is loaded</given>
+      <when>I call validate_dataset(dataset)</when>
+      <then>
+        <item>Returns True for valid AG News dataset</item>
+        <item>Validates expected fields present (text, label)</item>
+        <item>Validates 4 categories exist (labels 0-3)</item>
+        <item>Validates no missing values in text or label fields</item>
+        <item>Validates label range [0-3]</item>
+        <item>Raises DatasetLoadError with clear message for invalid dataset</item>
+      </then>
+    </criterion>
+    <criterion id="AC-3" title="Dataset Cached Locally for Performance">
+      <given>Dataset loaded once</given>
+      <when>I load dataset again</when>
+      <then>
+        <item>Loading completes in &lt;5 seconds (uses cache)</item>
+        <item>Cache location: ~/.cache/huggingface/datasets/ag_news/</item>
+        <item>No network calls made (works offline)</item>
+        <item>Warning logged: Using cached dataset from ~/.cache/huggingface/</item>
+      </then>
+    </criterion>
+    <criterion id="AC-4" title="Text Fields Extracted and Combined">
+      <given>Dataset is loaded</given>
+      <when>Text fields are processed</when>
+      <then>
+        <item>Title and description fields are combined into single text field</item>
+        <item>Text fields are stripped of leading/trailing whitespace</item>
+        <item>No missing or empty text values after processing</item>
+        <item>Sample text examples logged for verification</item>
+      </then>
+    </criterion>
+    <criterion id="AC-5" title="Category Distribution Logged and Balanced">
+      <given>Dataset is loaded and validated</given>
+      <when>I call get_category_distribution(dataset)</when>
+      <then>
+        <item>Returns dictionary mapping category labels to document counts</item>
+        <item>All 4 categories (0=World, 1=Sports, 2=Business, 3=Sci/Tech) present</item>
+        <item>Category distribution is logged with counts and percentages</item>
+        <item>Categories are reasonably balanced (no category &lt; 10% of total)</item>
+      </then>
+    </criterion>
+    <criterion id="AC-6" title="Optional Sampling Support for Faster Experiments">
+      <given>Configuration specifies dataset.sample_size (e.g., 1000)</given>
+      <when>Dataset is loaded</when>
+      <then>
+        <item>Only specified number of samples loaded from training set</item>
+        <item>Sampling maintains category distribution (stratified sampling)</item>
+        <item>Test set can optionally be sampled proportionally</item>
+        <item>Log message indicates: Using sample of {sample_size} documents</item>
+      </then>
+    </criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Product Requirements Document</title>
+        <section>FR-1: Dataset Loading and Preprocessing</section>
+        <snippet>System must load and prepare the AG News dataset for embedding generation and clustering. Load AG News from Hugging Face datasets library, validate 4 categories (World, Sports, Business, Sci/Tech), extract text fields, handle train/test split (120K training, 7.6K test samples), support optional sampling for experimentation, log dataset statistics.</snippet>
+      </doc>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Product Requirements Document</title>
+        <section>Data Pipeline Requirements</section>
+        <snippet>Load AG News dataset from Hugging Face datasets library, support CSV export/import for embeddings caching, data validation ensures 4 categories present, handle train/test split. Dependencies include datasets library v2.14+.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>AC-6: AG News Dataset Loaded</section>
+        <snippet>DatasetLoader().load_ag_news() returns tuple of (train_dataset, test_dataset). Train has 120,000 samples, test has 7,600 samples. Dataset fields: text, label. Labels range [0-3] for 4 categories. No missing values. Category distribution logged.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>AC-7: Dataset Validated</section>
+        <snippet>validate_dataset() returns True for valid AG News dataset. Validates expected fields present (text, label), 4 categories exist (labels 0-3), no missing values, label range [0-3]. Raises DatasetLoadError with clear message for invalid dataset.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>AC-8: Dataset Cached Locally</section>
+        <snippet>Second dataset load completes in under 5 seconds using cache. Cache location: ~/.cache/huggingface/datasets/ag_news/. No network calls made (offline-capable). Warning logged: "Using cached dataset from ~/.cache/huggingface/".</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>DatasetLoader API</section>
+        <snippet>DatasetLoader class with load_ag_news() returning Tuple[Dataset, Dataset], validate_dataset() checking structure/content, get_category_distribution() returning Dict[int, int]. Validates fields (text, label), 4 categories, no missing values, label range.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>Story 1.3: Dataset Loading Workflow</section>
+        <snippet>Load AG News from Hugging Face (datasets.load_dataset), validate structure (check fields, categories, sizes), process text fields (combine title+description, strip whitespace), cache locally (Hugging Face auto-cache), log statistics (samples, distribution, examples).</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>src/context_aware_multi_agent_system/config.py</path>
+        <kind>configuration</kind>
+        <symbol>Config</symbol>
+        <lines>19-202</lines>
+        <reason>Provides Config class for accessing dataset configuration (dataset.name, dataset.categories, dataset.sample_size). DatasetLoader must use Config().get() for all configuration values.</reason>
+      </artifact>
+      <artifact>
+        <path>src/context_aware_multi_agent_system/config.py</path>
+        <kind>configuration</kind>
+        <symbol>Paths</symbol>
+        <lines>204-278</lines>
+        <reason>Provides Paths class with data_raw directory for optional local dataset storage. Use paths.data_raw if storing processed datasets locally.</reason>
+      </artifact>
+      <artifact>
+        <path>config.yaml</path>
+        <kind>configuration</kind>
+        <symbol>dataset</symbol>
+        <lines>4-9</lines>
+        <reason>Dataset configuration section with name="ag_news", categories=4, sample_size=null. DatasetLoader reads these values via Config.get().</reason>
+      </artifact>
+      <artifact>
+        <path>src/context_aware_multi_agent_system/data/__init__.py</path>
+        <kind>module</kind>
+        <symbol>data</symbol>
+        <lines>1-1</lines>
+        <reason>Data module initialization exists. DatasetLoader will be added to this module as load_dataset.py.</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <python>
+        <package name="datasets" version=">=2.14.0" purpose="Hugging Face datasets library for AG News loading with automatic caching" />
+        <package name="pandas" version=">=2.0.0" purpose="Stratified sampling for optional dataset sampling feature" />
+        <package name="PyYAML" version=">=6.0" purpose="Config class dependency for YAML configuration parsing" />
+        <package name="python-dotenv" version=">=1.0.0" purpose="Config class dependency for environment variable loading" />
+      </python>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint type="architecture">DatasetLoader must be implemented in src/context_aware_multi_agent_system/data/load_dataset.py following the module structure established in Story 1.1</constraint>
+    <constraint type="architecture">All configuration values must be retrieved via Config.get() - no hardcoded values allowed</constraint>
+    <constraint type="architecture">Follow logging pattern from Story 1.2: emoji-prefixed messages (📊 for info, ✅ for success, ⚠️ for warnings, ❌ for errors)</constraint>
+    <constraint type="architecture">Use type hints for all methods following the pattern from Config class</constraint>
+    <constraint type="architecture">Dataset validation must happen automatically on load - no silent failures allowed</constraint>
+    <constraint type="performance">Second dataset load must complete in under 5 seconds using Hugging Face cache</constraint>
+    <constraint type="performance">Hugging Face auto-caches to ~/.cache/huggingface/datasets/ - leverage this for offline capability</constraint>
+    <constraint type="testing">Integration tests must verify actual AG News loading with exact sample counts (120,000 train, 7,600 test)</constraint>
+    <constraint type="testing">Validation tests must check both valid dataset (passes) and invalid dataset (raises DatasetLoadError)</constraint>
+    <constraint type="testing">Sampling tests must verify stratified sampling maintains category distribution within 5% tolerance</constraint>
+  </constraints>
+  <interfaces>
+    <interface>
+      <name>DatasetLoader.load_ag_news()</name>
+      <kind>method</kind>
+      <signature>def load_ag_news(self) -> Tuple[Dataset, Dataset]</signature>
+      <path>src/context_aware_multi_agent_system/data/load_dataset.py</path>
+      <description>Loads AG News dataset from Hugging Face, returns tuple of (train_dataset, test_dataset). Automatically validates dataset structure and logs statistics.</description>
+    </interface>
+    <interface>
+      <name>DatasetLoader.validate_dataset()</name>
+      <kind>method</kind>
+      <signature>def validate_dataset(self, dataset: Dataset) -> bool</signature>
+      <path>src/context_aware_multi_agent_system/data/load_dataset.py</path>
+      <description>Validates dataset has expected fields (text, label), 4 categories (labels 0-3), no missing values. Returns True if valid, raises DatasetLoadError if invalid.</description>
+    </interface>
+    <interface>
+      <name>DatasetLoader.get_category_distribution()</name>
+      <kind>method</kind>
+      <signature>def get_category_distribution(self, dataset: Dataset) -> Dict[int, int]</signature>
+      <path>src/context_aware_multi_agent_system/data/load_dataset.py</path>
+      <description>Returns dictionary mapping category labels (0-3) to document counts. Used for logging distribution statistics and verifying balanced categories.</description>
+    </interface>
+    <interface>
+      <name>Config.get()</name>
+      <kind>method</kind>
+      <signature>def get(self, key: str, default: Any = None) -> Any</signature>
+      <path>src/context_aware_multi_agent_system/config.py</path>
+      <description>Retrieve configuration values using dot notation (e.g., config.get("dataset.name") returns "ag_news"). Must be used by DatasetLoader for all config access.</description>
+    </interface>
+    <interface>
+      <name>DatasetLoadError</name>
+      <kind>exception</kind>
+      <signature>class DatasetLoadError(Exception)</signature>
+      <path>src/context_aware_multi_agent_system/data/load_dataset.py</path>
+      <description>Custom exception raised when dataset loading or validation fails. Should include clear error message with field names and troubleshooting guidance.</description>
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>
+Tests follow pytest framework established in Story 1.2. Integration tests verify actual AG News loading from Hugging Face with exact sample counts. Unit tests use pytest for validation logic, error handling, and sampling. Test files located in tests/epic1/ directory. All tests include docstrings explaining AC mapping and purpose. Use pytest.raises() for exception testing. Follow naming pattern: test_*.py with TestClassName for test classes.
+    </standards>
+    <locations>
+      <location>tests/epic1/test_dataset_loading.py</location>
+    </locations>
+    <ideas>
+      <test ac="AC-1" priority="critical">
+        <name>test_load_ag_news_returns_correct_splits</name>
+        <description>Integration test: Call DatasetLoader().load_ag_news() and verify returns tuple of (train_dataset, test_dataset) with exact counts: 120,000 train, 7,600 test. Verify fields 'text' and 'label' exist.</description>
+      </test>
+      <test ac="AC-1" priority="critical">
+        <name>test_load_ag_news_logs_statistics</name>
+        <description>Verify dataset loading logs sample counts and category distribution with emoji-prefixed messages (📊, ✅).</description>
+      </test>
+      <test ac="AC-2" priority="critical">
+        <name>test_validate_dataset_returns_true_for_valid</name>
+        <description>Unit test: Create valid AG News dataset mock and verify validate_dataset() returns True.</description>
+      </test>
+      <test ac="AC-2" priority="critical">
+        <name>test_validate_dataset_raises_error_for_invalid</name>
+        <description>Unit test: Create invalid dataset mocks (missing fields, wrong label range, missing values) and verify DatasetLoadError is raised with clear message using pytest.raises().</description>
+      </test>
+      <test ac="AC-3" priority="high">
+        <name>test_dataset_loads_from_cache_quickly</name>
+        <description>Integration test: Load dataset twice, measure time using time.time(). Verify second load completes in under 5 seconds. Verify cache location ~/.cache/huggingface/datasets/ag_news/ is used.</description>
+      </test>
+      <test ac="AC-4" priority="medium">
+        <name>test_text_fields_processed_correctly</name>
+        <description>Verify text fields are stripped of whitespace, no empty values remain. Log sample texts for verification (first 3 documents).</description>
+      </test>
+      <test ac="AC-5" priority="high">
+        <name>test_get_category_distribution</name>
+        <description>Unit test: Call get_category_distribution() on train dataset and verify returns dict with 4 keys (0-3), all values > 0, all categories present. Verify distribution is logged.</description>
+      </test>
+      <test ac="AC-6" priority="high">
+        <name>test_stratified_sampling_maintains_distribution</name>
+        <description>Unit test: Set config.dataset.sample_size=1000, load dataset, verify len(train) == 1000. Compare category distribution percentages between full and sampled datasets, assert difference &lt; 5% per category.</description>
+      </test>
+      <test ac="AC-6" priority="medium">
+        <name>test_sampling_logs_sample_size</name>
+        <description>Verify log message includes "Using sample of {sample_size} documents" when sampling is enabled.</description>
+      </test>
+    </ideas>
+  </tests>
+</story-context>
