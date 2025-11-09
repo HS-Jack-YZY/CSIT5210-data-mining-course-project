@@ -159,7 +159,70 @@ set_seed(42)
 
 ## Usage
 
-(To be added as features are implemented)
+### Embedding Generation
+
+Generate semantic embeddings using the Gemini API:
+
+```python
+from context_aware_multi_agent_system.config import Config, Paths
+from context_aware_multi_agent_system.features import EmbeddingService, EmbeddingCache
+
+# Initialize configuration
+config = Config()
+paths = Paths()
+
+# Create embedding service with API key from .env
+service = EmbeddingService(config.gemini_api_key)
+
+# Test API connection
+service.test_connection()  # Returns True if successful
+
+# Generate single embedding
+embedding = service.generate_embedding("Hello world")
+print(embedding.shape)  # (768,)
+
+# Generate batch embeddings
+documents = ["First document", "Second document", "Third document"]
+embeddings = service.generate_batch(documents, batch_size=100)
+print(embeddings.shape)  # (3, 768)
+```
+
+### Embedding Cache
+
+Save and load embeddings to avoid redundant API calls:
+
+```python
+from context_aware_multi_agent_system.features import EmbeddingCache
+from context_aware_multi_agent_system.config import Paths
+import numpy as np
+
+# Initialize cache
+paths = Paths()
+cache = EmbeddingCache(paths.data_embeddings)
+
+# Save embeddings
+embeddings = np.random.rand(100, 768).astype(np.float32)
+metadata = {
+    "model": "gemini-embedding-001",
+    "dimensions": 768,
+    "num_documents": 100,
+    "dataset": "ag_news",
+    "split": "train"
+}
+cache.save(embeddings, "train", metadata)
+
+# Load embeddings
+embeddings, metadata = cache.load("train")
+print(embeddings.shape)  # (100, 768)
+print(metadata["model"])  # "gemini-embedding-001"
+
+# Check if cache exists
+if cache.exists("test"):
+    embeddings, metadata = cache.load("test")
+else:
+    # Generate embeddings...
+    pass
+```
 
 ## Development
 

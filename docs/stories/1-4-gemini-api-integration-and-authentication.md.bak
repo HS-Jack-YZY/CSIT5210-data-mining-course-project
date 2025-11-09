@@ -1,6 +1,6 @@
 # Story 1.4: Gemini API Integration and Authentication
 
-Status: review
+Status: ready-for-dev
 
 ## Story
 
@@ -56,7 +56,7 @@ So that **I can generate semantic embeddings for clustering**.
 
 ## Tasks / Subtasks
 
-- [x] Implement EmbeddingService class in src/context_aware_multi_agent_system/features/embedding_service.py (AC: #1, #2, #3)
+- [ ] Implement EmbeddingService class in src/context_aware_multi_agent_system/features/embedding_service.py (AC: #1, #2, #3)
   - [ ] Import required libraries: `from google import genai`, typing, numpy, tenacity
   - [ ] Implement __init__ method:
     - [ ] Accept api_key and model parameters
@@ -88,7 +88,7 @@ So that **I can generate semantic embeddings for clustering**.
   - [ ] Add type hints for all methods
   - [ ] Add docstrings with usage examples (Google style)
 
-- [x] Implement EmbeddingCache class in src/context_aware_multi_agent_system/features/embedding_cache.py (AC: #4)
+- [ ] Implement EmbeddingCache class in src/context_aware_multi_agent_system/features/embedding_cache.py (AC: #4)
   - [ ] Import required libraries: numpy, json, pathlib, typing, datetime
   - [ ] Implement __init__ method:
     - [ ] Accept cache_dir parameter (Path)
@@ -120,7 +120,7 @@ So that **I can generate semantic embeddings for clustering**.
   - [ ] Add type hints for all methods
   - [ ] Add docstrings with usage examples
 
-- [x] Create custom exception classes (AC: #2)
+- [ ] Create custom exception classes (AC: #2)
   - [ ] Define AuthenticationError in src/context_aware_multi_agent_system/features/embedding_service.py
     - [ ] Inherit from Exception
     - [ ] Accept message parameter with error details
@@ -130,19 +130,19 @@ So that **I can generate semantic embeddings for clustering**.
     - [ ] Accept split name parameter
     - [ ] Include helpful message with cache directory path
 
-- [x] Create .env.example template file (AC: #2)
+- [ ] Create .env.example template file (AC: #2)
   - [ ] Create .env.example in project root
   - [ ] Add GEMINI_API_KEY placeholder with instructions
   - [ ] Add comments explaining usage
   - [ ] Ensure .env is in .gitignore
 
-- [x] Update Config class to provide gemini_api_key property (AC: #1)
+- [ ] Update Config class to provide gemini_api_key property (AC: #1)
   - [ ] Add @property gemini_api_key in src/context_aware_multi_agent_system/config.py
   - [ ] Load from environment variable GEMINI_API_KEY
   - [ ] Raise ValueError if not found with clear message
   - [ ] Never log the actual API key value (mask as ***)
 
-- [x] Test Gemini API integration workflow (AC: #1, #2, #3, #4)
+- [ ] Test Gemini API integration workflow (AC: #1, #2, #3, #4)
   - [ ] Test authentication with valid API key
   - [ ] Test authentication failure with missing API key
   - [ ] Test authentication failure with invalid API key
@@ -155,7 +155,7 @@ So that **I can generate semantic embeddings for clustering**.
   - [ ] Test embedding dtype validation (float32)
   - [ ] Test embedding shape validation (768,)
 
-- [x] Update project documentation (AC: all)
+- [ ] Update project documentation (AC: all)
   - [ ] Update README.md with API key setup instructions
   - [ ] Document .env.example → .env copy process
   - [ ] Document EmbeddingService usage examples
@@ -433,68 +433,10 @@ context-aware-multi-agent-system/
 
 ### Agent Model Used
 
-claude-sonnet-4-5-20250929
+{{agent_model_name_version}}
 
 ### Debug Log References
 
-All implementation completed successfully following Story Context XML and acceptance criteria.
-
 ### Completion Notes List
 
-**Implementation Summary** (Date: 2025-11-09)
-
-✅ **EmbeddingService Class** - Implemented in `src/context_aware_multi_agent_system/features/embedding_service.py`
-- Full API authentication with test_connection() method
-- Single and batch embedding generation with retry logic
-- Exponential backoff retry (3 attempts, 4-16s delays)
-- ValueError exclusion from retry (validation errors shouldn't be retried)
-- RetryError handling in test_connection() for clean AuthenticationError messages
-- Comprehensive docstrings and type hints
-- All AC-1, AC-2, AC-3 requirements met
-
-✅ **EmbeddingCache Class** - Implemented in `src/context_aware_multi_agent_system/features/embedding_cache.py`
-- Save/load operations with .npy (embeddings) and .json (metadata) formats
-- Automatic timestamp injection
-- dtype and shape validation (float32, 768 dimensions)
-- Cache existence checking and clearing operations
-- All AC-4 requirements met
-
-✅ **Custom Exceptions** - AuthenticationError and CacheNotFoundError
-- Helpful error messages with troubleshooting guidance
-- API key masking in error messages
-
-✅ **Configuration** - .env.example template updated
-- Clear instructions for API key setup
-- Already verified .gitignore includes .env
-
-✅ **Testing** - 82/82 tests passing (100%)
-- 17 tests for EmbeddingService (authentication, generation, retry logic)
-- 23 tests for EmbeddingCache (save/load/roundtrip operations)
-- All tests cover acceptance criteria AC-1 through AC-4
-
-✅ **Documentation** - README.md updated
-- Added usage examples for EmbeddingService
-- Added usage examples for EmbeddingCache
-- API key setup instructions confirmed present
-
-**Technical Notes**:
-- Used `retry_if_not_exception_type(ValueError)` instead of `retry_if_exception_type` to prevent retrying validation errors
-- Added RetryError import and exception handling in test_connection() to extract original exception messages
-- All 40+ subtasks implemented and verified with comprehensive test coverage
-
 ### File List
-
-**New Files Created:**
-- src/context_aware_multi_agent_system/features/embedding_service.py
-- src/context_aware_multi_agent_system/features/embedding_cache.py
-- tests/epic1/test_embedding_service.py
-- tests/epic1/test_embedding_cache.py
-
-**Modified Files:**
-- src/context_aware_multi_agent_system/features/__init__.py (added exports)
-- .env.example (updated with detailed instructions)
-- README.md (added usage section with examples)
-
-**Verified Existing:**
-- src/context_aware_multi_agent_system/config.py (gemini_api_key property already present)
-- .gitignore (.env already included)
