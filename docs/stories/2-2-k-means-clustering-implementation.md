@@ -1,6 +1,6 @@
 # Story 2.2: K-Means Clustering Implementation
 
-Status: drafted
+Status: ready-for-dev
 
 ## Story
 
@@ -667,7 +667,7 @@ def test_performance_targets():
 
 ### Context Reference
 
-<!-- Path(s) to story context XML will be added here by context workflow -->
+- [Story Context XML](docs/stories/2-2-k-means-clustering-implementation.context.xml)
 
 ### Agent Model Used
 

@@ -1,0 +1,286 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>2</epicId>
+    <storyId>2</storyId>
+    <title>K-Means Clustering Implementation</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-09</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/2-2-k-means-clustering-implementation.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>a data mining student</asA>
+    <iWant>to apply K-Means clustering to partition documents into K=4 semantic clusters</iWant>
+    <soThat>I can demonstrate clustering algorithm mastery for course evaluation</soThat>
+    <tasks>
+      <task id="1" ac="AC-1">Implement KMeansClustering class in src/models/clustering.py with fit_predict() method, scikit-learn wrapper, and parameter validation</task>
+      <task id="2" ac="AC-1,AC-2,AC-3,AC-4,AC-5,AC-6,AC-7,AC-8">Create clustering orchestration script scripts/02_train_clustering.py with full pipeline: load embeddings, run clustering, validate, export assignments/centroids/metadata</task>
+      <task id="3" ac="AC-2">Implement cluster assignment export function with CSV output (document_id, cluster_id, category_label)</task>
+      <task id="4" ac="AC-3">Implement centroid export function saving to data/processed/centroids.npy</task>
+      <task id="5" ac="AC-6">Implement metadata export function with JSON output containing all clustering metrics</task>
+      <task id="6" ac="AC-1">Update config.yaml with clustering parameters (n_clusters=4, random_state=42, max_iter=300, init=k-means++)</task>
+      <task id="7" ac="AC-7">Implement error handling and validation for embeddings file, shape, dtype, cluster balance</task>
+      <task id="8" ac="AC-1,AC-2,AC-3,AC-4,AC-5,AC-6">Test clustering pipeline with unit tests, integration tests, performance tests, reproducibility tests</task>
+      <task id="9" ac="all">Update project documentation with clustering script usage and outputs</task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC-1" title="K-Means Clustering Implementation">
+      <given>document embeddings are generated and cached</given>
+      <when>I run the clustering algorithm</when>
+      <then>
+        - K-Means clustering is applied with exact parameters: n_clusters=4, init=k-means++, random_state=42, max_iter=300
+        - KMeansClustering class implemented in src/models/clustering.py
+        - Uses scikit-learn KMeans wrapper with project-specific configuration
+        - Enforces reproducibility (random_state from config)
+        - Provides fit_predict() method returning labels and centroids
+      </then>
+      <validation>labels shape (120000,), dtype int32, values in [0,3]; centroids shape (4, 768), dtype float32</validation>
+    </criterion>
+    <criterion id="AC-2" title="Cluster Assignments Export">
+      <given>K-Means clustering is complete</given>
+      <when>I export cluster assignments</when>
+      <then>
+        - All 120K documents assigned to exactly one cluster (0-3)
+        - CSV file saved to data/processed/cluster_assignments.csv
+        - CSV contains columns: document_id, cluster_id, category_label
+        - Cluster IDs are valid integers [0, 3]
+        - Document IDs match AG News dataset order
+      </then>
+      <validation>CSV has 120000 rows, columns {document_id, cluster_id, category_label}, cluster_id in [0,3], unique document_ids</validation>
+    </criterion>
+    <criterion id="AC-3" title="Centroids Export">
+      <given>K-Means clustering is complete</given>
+      <when>I export cluster centroids</when>
+      <then>
+        - Centroids saved to data/processed/centroids.npy
+        - Shape is exactly (4, 768)
+        - Dtype is float32
+        - No NaN or Inf values
+      </then>
+      <validation>centroids.shape == (4, 768), dtype == float32, no NaN/Inf</validation>
+    </criterion>
+    <criterion id="AC-4" title="Cluster Distribution Validation">
+      <given>K-Means clustering is complete</given>
+      <when>I analyze cluster distribution</when>
+      <then>
+        - Cluster size distribution is logged and validated
+        - No extreme imbalance (no cluster &lt;10% or &gt;50% of data)
+        - Warning logged if cluster imbalance detected
+      </then>
+      <validation>cluster_sizes all in range [12000, 60000]</validation>
+    </criterion>
+    <criterion id="AC-5" title="Convergence and Performance">
+      <given>K-Means clustering is running</given>
+      <when>The algorithm converges</when>
+      <then>
+        - Algorithm converges successfully (&lt; max_iter = 300)
+        - Convergence information is logged (iterations, final inertia)
+        - Expected runtime: &lt;5 minutes for 120K documents
+      </then>
+      <validation>n_iter &lt; 300, execution time &lt; 300 seconds</validation>
+    </criterion>
+    <criterion id="AC-6" title="Metadata Export">
+      <given>K-Means clustering is complete</given>
+      <when>I export clustering metadata</when>
+      <then>
+        - Metadata saved to data/processed/cluster_metadata.json
+        - Contains all required fields: timestamp, n_clusters, n_documents, random_state, n_iterations, inertia, cluster_sizes, config
+        - JSON formatted with indent=2 (human-readable)
+      </then>
+      <validation>JSON contains all required keys, n_clusters==4, n_documents==120000, random_state==42</validation>
+    </criterion>
+    <criterion id="AC-7" title="Error Handling">
+      <given>The clustering script is executed</given>
+      <when>Errors may occur</when>
+      <then>
+        - Clear error if embeddings file missing (suggests running Epic 1 script)
+        - Validation error if embedding shape wrong (not (*, 768))
+        - Validation error if embedding dtype wrong (not float32)
+        - Warning if cluster imbalance detected
+        - Automatic directory creation if output paths don't exist
+      </then>
+      <validation>Test missing embeddings → FileNotFoundError with helpful message</validation>
+    </criterion>
+    <criterion id="AC-8" title="Logging and Observability">
+      <given>The clustering script is running</given>
+      <when>Major operations occur</when>
+      <then>
+        - Emoji-prefixed logs (📊, ✅, ⚠️, ❌) for visual clarity
+        - Log startup configuration, convergence information, cluster sizes, file saves, completion status
+      </then>
+      <validation>Logs contain expected emoji prefixes and key information</validation>
+    </criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/tech-spec-epic-2.md</path>
+        <title>Epic 2 Technical Specification</title>
+        <section>Overview</section>
+        <snippet>Epic 2 implements the K-Means Clustering component that partitions the AG News dataset (120K documents) into 4 semantic clusters based on their embeddings. The clustering implementation uses scikit-learn's K-Means with k-means++ initialization (random_state=42) to ensure reproducible results.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-2.md</path>
+        <title>Epic 2 Technical Specification</title>
+        <section>Detailed Design → Services and Modules → KMeansClustering</section>
+        <snippet>KMeansClustering class wraps scikit-learn KMeans with project-specific configuration. Provides fit_predict() method returning cluster labels (int32) and centroids (float32). Module includes parameter validation, convergence logging, and error handling.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>System Architecture</title>
+        <section>Decision Summary → Clustering Engine</section>
+        <snippet>Uses scikit-learn K-Means with k-means++ initialization, random_state=42 for reproducibility. Enforces performance constraint: convergence &lt;5 minutes for 120K documents. Follows Cookiecutter Data Science structure: src/models/ for clustering logic, scripts/ for execution.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epic Breakdown</title>
+        <section>Story 2.2 - K-Means Clustering Implementation</section>
+        <snippet>Implement K-Means clustering with exact parameters: n_clusters=4, init=k-means++, random_state=42, max_iter=300. Outputs include cluster assignments CSV, centroids NPY, and metadata JSON with quality metrics.</snippet>
+      </doc>
+      <doc>
+        <path>config.yaml</path>
+        <title>Project Configuration</title>
+        <section>clustering</section>
+        <snippet>Clustering configuration: algorithm=kmeans, n_clusters=4, random_state=42, max_iter=300, init=k-means++. All parameters loaded via Config.get() method with dot notation access.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>src/context_aware_multi_agent_system/config.py</path>
+        <kind>service</kind>
+        <symbol>Config</symbol>
+        <lines>19-202</lines>
+        <reason>Configuration management class for loading clustering parameters from config.yaml using dot notation (config.get("clustering.n_clusters")). Provides validation and property access to clustering config section.</reason>
+      </artifact>
+      <artifact>
+        <path>src/context_aware_multi_agent_system/config.py</path>
+        <kind>service</kind>
+        <symbol>Paths</symbol>
+        <lines>204-277</lines>
+        <reason>Path management class providing absolute paths to all project directories including data_processed for clustering outputs. Automatically creates directories if they don't exist.</reason>
+      </artifact>
+      <artifact>
+        <path>src/context_aware_multi_agent_system/utils/reproducibility.py</path>
+        <kind>utility</kind>
+        <symbol>set_seed</symbol>
+        <lines>15-51</lines>
+        <reason>Sets random seeds globally for reproducible clustering. Must be called at script start with seed=42 to ensure K-Means produces identical results across runs.</reason>
+      </artifact>
+      <artifact>
+        <path>src/context_aware_multi_agent_system/features/embedding_cache.py</path>
+        <kind>service</kind>
+        <symbol>EmbeddingCache</symbol>
+        <lines>1-end</lines>
+        <reason>Provides cache_exists() and load() methods to retrieve cached embeddings from Epic 1 (data/embeddings/train_embeddings.npy). Used to validate embeddings before clustering.</reason>
+      </artifact>
+      <artifact>
+        <path>scripts/01_generate_embeddings.py</path>
+        <kind>script</kind>
+        <symbol>main</symbol>
+        <lines>1-end</lines>
+        <reason>Epic 1 script that generated cached embeddings. Reference for script structure pattern: initialization order (set_seed → load config → setup → execute), logging style, error handling.</reason>
+      </artifact>
+      <artifact>
+        <path>data/embeddings/train_embeddings.npy</path>
+        <kind>data</kind>
+        <symbol>N/A</symbol>
+        <lines>N/A</lines>
+        <reason>INPUT: Pre-generated embeddings from Epic 1. Shape (120000, 768) float32. Must be validated before clustering (check exists, shape, dtype, no NaN/Inf).</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <python>
+        <package name="scikit-learn" version=">=1.7.2">K-Means clustering algorithm implementation</package>
+        <package name="numpy" version=">=1.24.0">Array operations, data type handling (int32, float32)</package>
+        <package name="pandas" version=">=2.0.0">CSV export for cluster assignments</package>
+        <package name="PyYAML" version=">=6.0">Config loading from config.yaml</package>
+        <package name="python-dotenv" version=">=1.0.0">Environment variable loading</package>
+        <package name="matplotlib" version=">=3.7.0">Visualization support (for future PCA plots)</package>
+        <package name="seaborn" version=">=0.12.0">Enhanced visualization styling</package>
+        <package name="pytest" version=">=7.4.0">Unit and integration testing framework</package>
+      </python>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint type="performance">K-Means convergence must complete in &lt;5 minutes for 120K documents × 768 dimensions (NFR-1 from architecture)</constraint>
+    <constraint type="reproducibility">Fixed random_state=42 enforced via config.yaml and set_seed(42) utility. Identical results required across runs for academic evaluation (ADR-004)</constraint>
+    <constraint type="data-types">Cluster labels must be int32 (values 0-3), centroids must be float32 (shape 4×768). No implicit type conversions allowed</constraint>
+    <constraint type="logging">Use emoji-prefixed logging (📊 INFO, ✅ SUCCESS, ⚠️ WARNING, ❌ ERROR) from established project pattern. Log all major operations for debugging</constraint>
+    <constraint type="error-handling">Validate embeddings file existence before clustering. Raise FileNotFoundError with suggestion to run Epic 1 script if missing. Validate shape (*, 768) and dtype (float32)</constraint>
+    <constraint type="configuration">No hardcoded parameters. All clustering config from config.yaml via Config.get() method. Parameters: n_clusters, random_state, max_iter, init method</constraint>
+    <constraint type="architecture">Follow Cookiecutter Data Science structure: clustering logic in src/models/clustering.py, orchestration in scripts/02_train_clustering.py, outputs in data/processed/</constraint>
+    <constraint type="initialization-order">Script initialization sequence: set_seed(42) → load config → setup logging → validate inputs → execute clustering → export outputs</constraint>
+    <constraint type="cluster-balance">Validate cluster distribution: no cluster &lt;10% or &gt;50% of total documents. Log warning if imbalance detected (12K-60K per cluster expected)</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>KMeansClustering.fit_predict</name>
+      <kind>method</kind>
+      <signature>fit_predict(self, embeddings: np.ndarray) -> Tuple[np.ndarray, np.ndarray]</signature>
+      <path>src/models/clustering.py (TO BE CREATED)</path>
+      <description>Fits K-Means clustering and returns cluster assignments and centroids. Input: embeddings (n_documents, 768) float32. Returns: labels (n_documents,) int32 with values [0,3], centroids (4, 768) float32</description>
+    </interface>
+    <interface>
+      <name>Config.get</name>
+      <kind>method</kind>
+      <signature>get(self, key: str, default: Any = None) -> Any</signature>
+      <path>src/context_aware_multi_agent_system/config.py:72-98</path>
+      <description>Retrieves configuration values using dot notation. Example: config.get("clustering.n_clusters") returns 4. Used to load all clustering parameters from config.yaml</description>
+    </interface>
+    <interface>
+      <name>Paths.data_processed</name>
+      <kind>property</kind>
+      <signature>@property data_processed: Path</signature>
+      <path>src/context_aware_multi_agent_system/config.py:232</path>
+      <description>Absolute path to data/processed/ directory for clustering outputs. Directory is automatically created if it doesn't exist. Used for saving cluster_assignments.csv, centroids.npy, cluster_metadata.json</description>
+    </interface>
+    <interface>
+      <name>set_seed</name>
+      <kind>function</kind>
+      <signature>set_seed(seed: int) -> None</signature>
+      <path>src/context_aware_multi_agent_system/utils/reproducibility.py:15-51</path>
+      <description>Sets random seeds globally for numpy and Python's random module. Call with seed=42 at script start to ensure reproducible K-Means results. Note: K-Means also needs random_state=42 parameter separately</description>
+    </interface>
+    <interface>
+      <name>EmbeddingCache.cache_exists</name>
+      <kind>method</kind>
+      <signature>cache_exists(self, split: str) -> bool</signature>
+      <path>src/context_aware_multi_agent_system/features/embedding_cache.py</path>
+      <description>Checks if cached embeddings exist for given split (train/test). Use to validate embeddings file before clustering. Returns True if data/embeddings/{split}_embeddings.npy exists</description>
+    </interface>
+    <interface>
+      <name>EmbeddingCache.load</name>
+      <kind>method</kind>
+      <signature>load(self, split: str) -> np.ndarray</signature>
+      <path>src/context_aware_multi_agent_system/features/embedding_cache.py</path>
+      <description>Loads cached embeddings from NPY file. Returns numpy array with shape (n_documents, 768) and dtype float32. Raises FileNotFoundError if cache doesn't exist</description>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>Use pytest for all tests following established project pattern. Tests located in tests/epic2/ directory. Map each test to acceptance criteria (AC-1, AC-2, etc.). Use pytest.raises() for exception testing, pytest fixtures for test setup (temp directories, synthetic data). Test both unit level (small synthetic datasets) and integration level (full 120K dataset). Performance tests verify clustering completes in &lt;5 minutes. Reproducibility tests verify identical results across multiple runs with same random seed.</standards>
+    <locations>
+      <location>tests/epic2/test_kmeans_clustering.py</location>
+      <location>tests/epic2/test_clustering_pipeline.py</location>
+      <location>tests/epic2/test_cluster_exports.py</location>
+    </locations>
+    <ideas>
+      <test ac="AC-1" type="unit">Test KMeansClustering.fit_predict() on synthetic dataset (1000 samples × 768 dims). Verify labels shape (1000,), dtype int32, values in [0,3]. Verify centroids shape (4, 768), dtype float32, no NaN/Inf.</test>
+      <test ac="AC-1" type="unit">Test parameter validation: wrong shape (*, 512) → ValueError, wrong dtype (float64) → ValueError, NaN values → ValueError. Verify clear error messages.</test>
+      <test ac="AC-2" type="integration">Test cluster assignment CSV export: run full clustering pipeline, load CSV, verify 120000 rows, columns {document_id, cluster_id, category_label}, unique document_ids, cluster_id in [0,3].</test>
+      <test ac="AC-3" type="integration">Test centroid export: load centroids.npy, verify shape (4, 768), dtype float32, no NaN/Inf values.</test>
+      <test ac="AC-4" type="integration">Test cluster balance validation: verify all cluster sizes in range [12000, 60000] (10%-50%). Test warning logged if imbalance detected.</test>
+      <test ac="AC-5" type="performance">Test clustering performance: measure execution time for 120K documents, assert &lt;300 seconds (5 minutes). Verify convergence iterations &lt; max_iter (300).</test>
+      <test ac="AC-6" type="integration">Test metadata export: load cluster_metadata.json, verify all required keys present (timestamp, n_clusters, n_documents, random_state, n_iterations, inertia, cluster_sizes, config). Verify n_clusters=4, n_documents=120000, random_state=42.</test>
+      <test ac="AC-7" type="error-handling">Test missing embeddings: remove embeddings file, run script, verify FileNotFoundError raised with message suggesting to run Epic 1 script. Test creates temp directory to avoid affecting real data.</test>
+      <test ac="AC-8" type="integration">Test logging output: capture logs, verify emoji prefixes present (📊, ✅, ⚠️, ❌), verify key messages logged (configuration, convergence info, cluster sizes, file saves, completion).</test>
+      <test ac="AC-1,AC-5" type="reproducibility">Test reproducibility: run clustering twice with same random_state=42, verify identical labels (exact match), identical centroids (np.allclose with tight tolerance). Critical for academic evaluation.</test>
+    </ideas>
+  </tests>
+</story-context>
