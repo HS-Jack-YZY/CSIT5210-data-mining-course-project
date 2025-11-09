@@ -48,7 +48,7 @@ development_status:
   2-2-k-means-clustering-implementation: done
   2-3-cluster-quality-evaluation: done
   2-4-pca-cluster-visualization: done
-  2-5-cluster-analysis-and-labeling: in-progress
+  2-5-cluster-analysis-and-labeling: done
   epic-2-retrospective: optional
 
   epic-3: backlog
