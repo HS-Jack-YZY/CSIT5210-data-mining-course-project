@@ -1,0 +1,224 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>5</epicId>
+    <storyId>5.4</storyId>
+    <title>Comprehensive Clustering Algorithm Comparison</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-09</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/5-4-comprehensive-clustering-algorithm-comparison.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>a data mining student</asA>
+    <iWant>a comprehensive comparison of all clustering algorithms tested (K-Means, DBSCAN, Hierarchical, GMM)</iWant>
+    <soThat>I can make data-driven recommendations about which algorithm is most suitable for text clustering tasks and demonstrate deep understanding of multiple clustering paradigms for academic evaluation</soThat>
+    <tasks>
+      - Task 1: Load All Algorithm Results (AC: 1)
+        - 1.1: Load K-Means results from Epic 2 (data/processed/cluster_assignments.csv, results/cluster_quality.json)
+        - 1.2: Load DBSCAN results from Story 5.1 (data/processed/dbscan_assignments.csv, results/dbscan_metrics.json)
+        - 1.3: Load Hierarchical results from Story 5.2 (data/processed/hierarchical_assignments.csv, results/hierarchical_metrics.json)
+        - 1.4: Load GMM results from Story 5.3 (data/processed/gmm_assignments.csv, results/gmm_metrics.json)
+        - 1.5: Load ground truth labels from AG News dataset
+        - 1.6: Validate all results files exist and have expected schema
+
+      - Task 2: Create Unified Comparison Matrix (AC: 1, 2)
+        - 2.1-2.7: Create AlgorithmComparison class, extract/normalize metrics, generate comparison DataFrame
+
+      - Task 3: Generate Side-by-Side PCA Visualizations (AC: 3)
+        - 3.1-3.12: Load embeddings, fit PCA once, create 2×2 subplot figure with all 4 algorithms
+
+      - Task 4: Ground Truth Alignment Analysis (AC: 5)
+        - 4.1-4.8: Generate confusion matrices for all algorithms vs ground truth categories
+
+      - Task 5: Per-Algorithm Analysis (AC: 4)
+        - 5.1-5.7: Document strengths/weaknesses/use-cases for each algorithm
+
+      - Task 6: Dimensionality Challenge Analysis (AC: 6)
+        - 6.1-6.6: Analyze curse of dimensionality effects and recommend dimensionality reduction
+
+      - Task 7: Generate Comprehensive Comparison Report (AC: 7)
+        - 7.1-7.10: Create reports/clustering_comparison.md with 6 sections
+
+      - Task 8: Summarize Key Findings (AC: 8)
+        - 8.1-8.8: Identify best algorithms per criterion, validate findings
+
+      - Task 9: Export Results and Validation (AC: 9)
+        - 9.1-9.8: Export to JSON, validate all outputs
+
+      - Task 10: Create Comparison Execution Script
+        - 10.1-10.10: Create scripts/08_compare_algorithms.py orchestrating all tasks
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    AC1: Comparison matrix created with all algorithms across all evaluation metrics (Silhouette, Davies-Bouldin, Purity, Clusters, Noise, Runtime, Convergence)
+
+    AC2: Comparison matrix saved as DataFrame to results/algorithm_comparison_matrix.csv
+
+    AC3: Side-by-side PCA visualizations generated (2×2 subplot, same projection for all, 300 DPI) saved to reports/figures/algorithm_comparison.png
+
+    AC4: Per-algorithm analysis documented (strengths, weaknesses, computational complexity, parameter sensitivity, best use cases)
+
+    AC5: Ground truth alignment analysis performed (confusion matrices, category-to-cluster mapping, misclassification patterns, best per category)
+
+    AC6: Dimensionality challenge analysis included (768D handling, curse of dimensionality, recommendations for preprocessing, robustness comparison)
+
+    AC7: Comprehensive comparison report generated at reports/clustering_comparison.md with 6 sections: Methodology, Quantitative Results, Visual Comparison, Algorithm Analysis, Recommendations, Lessons Learned
+
+    AC8: Key findings summarized (best overall, best per criterion, K-Means failure validation, actionable recommendations)
+
+    AC9: All comparison results exported to results/algorithm_comparison.json with timestamp
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <artifact>
+        <path>docs/tech-spec-epic-5.md</path>
+        <title>Epic Technical Specification: Alternative Clustering Algorithms Exploration</title>
+        <section>Story 5.4 - Comprehensive Algorithm Comparison</section>
+        <snippet>Story 5.4 implements cross-algorithm comparison creating comparison matrix, side-by-side PCA visualizations, per-algorithm analysis, ground truth alignment, and comprehensive comparison report with honest documentation of negative results.</snippet>
+      </artifact>
+      <artifact>
+        <path>docs/architecture.md</path>
+        <title>Architecture - Context-Aware Multi-Agent System</title>
+        <section>Clustering Algorithm & Evaluation Metrics</section>
+        <snippet>Uses scikit-learn K-Means with k-means++ initialization, Silhouette Score and Davies-Bouldin Index for cluster quality evaluation, PCA for dimensionality reduction and visualization, matplotlib + seaborn for academic-quality 300 DPI figures.</snippet>
+      </artifact>
+      <artifact>
+        <path>docs/PRD.md</path>
+        <title>K-Means Clustering Experimental Study - Product Requirements Document</title>
+        <section>Success Criteria & Academic Rigor</section>
+        <snippet>Project demonstrates comprehensive evaluation with multiple complementary metrics, transparent reporting of negative results, critical analysis of algorithm limitations, and reproducibility through complete parameter documentation.</snippet>
+      </artifact>
+      <artifact>
+        <path>docs/retrospectives/epic-2-retro-2025-11-09.md</path>
+        <title>Epic 2 Retrospective - K-Means Baseline</title>
+        <section>Key Learnings & Negative Results</section>
+        <snippet>K-Means yielded poor results (Silhouette ≈0.0008, purity ≈25.3%) indicating failure to discover semantic structure. Root causes include curse of dimensionality in 768D space, embedding-task mismatch, and algorithm limitations with high-dimensional data.</snippet>
+      </artifact>
+    </docs>
+    <code>
+      <artifact>
+        <path>src/context_aware_multi_agent_system/evaluation/clustering_metrics.py</path>
+        <kind>evaluation module</kind>
+        <symbol>calculate_purity, silhouette_score, davies_bouldin_score</symbol>
+        <lines>1-50</lines>
+        <reason>Provides standard clustering evaluation metrics used across all algorithms - reuse for comparison matrix</reason>
+      </artifact>
+      <artifact>
+        <path>src/context_aware_multi_agent_system/visualization/cluster_plots.py</path>
+        <kind>visualization module</kind>
+        <symbol>PCAVisualizer</symbol>
+        <lines>1-50</lines>
+        <reason>PCA visualization infrastructure for 768D→2D projection - extend for side-by-side 2×2 subplot comparison</reason>
+      </artifact>
+      <artifact>
+        <path>src/context_aware_multi_agent_system/models/dbscan_clustering.py</path>
+        <kind>clustering model</kind>
+        <symbol>DBSCANClustering</symbol>
+        <lines>1-50</lines>
+        <reason>DBSCAN implementation from Story 5.1 - load results from data/processed/dbscan_assignments.csv</reason>
+      </artifact>
+      <artifact>
+        <path>src/context_aware_multi_agent_system/models/gmm_clustering.py</path>
+        <kind>clustering model</kind>
+        <symbol>GMMClustering</symbol>
+        <lines>1-50</lines>
+        <reason>GMM implementation from Story 5.3 - load results from data/processed/gmm_assignments.csv</reason>
+      </artifact>
+      <artifact>
+        <path>src/context_aware_multi_agent_system/models/hierarchical_clustering.py</path>
+        <kind>clustering model</kind>
+        <symbol>HierarchicalClustering</symbol>
+        <lines>exists</lines>
+        <reason>Hierarchical clustering from Story 5.2 - load results from data/processed/hierarchical_assignments.csv</reason>
+      </artifact>
+      <artifact>
+        <path>results/cluster_quality.json</path>
+        <kind>results file</kind>
+        <symbol>K-Means metrics</symbol>
+        <lines>all</lines>
+        <reason>K-Means evaluation results from Epic 2 - load for comparison matrix</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <python>
+        <package name="scikit-learn" version="≥1.7.2">K-Means, DBSCAN, Hierarchical, GMM algorithms and evaluation metrics</package>
+        <package name="numpy" version="≥1.24">Array operations and embeddings storage (.npy files)</package>
+        <package name="pandas" version="≥2.0">DataFrame for comparison matrix and CSV I/O</package>
+        <package name="matplotlib" version="≥3.7">Side-by-side subplot visualization (2×2 layout)</package>
+        <package name="seaborn" version="≥0.12">Color palettes and enhanced plot styling</package>
+      </python>
+      <data>
+        <file>data/embeddings/train_embeddings.npy - 120K × 768 embeddings (same for all algorithms)</file>
+        <file>data/processed/cluster_assignments.csv - K-Means assignments (Epic 2)</file>
+        <file>data/processed/dbscan_assignments.csv - DBSCAN assignments (Story 5.1)</file>
+        <file>data/processed/hierarchical_assignments.csv - Hierarchical assignments (Story 5.2)</file>
+        <file>data/processed/gmm_assignments.csv - GMM assignments (Story 5.3)</file>
+        <file>results/cluster_quality.json - K-Means metrics</file>
+      </data>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    - Must use same embeddings (data/embeddings/train_embeddings.npy) as all previous algorithms for fair comparison
+    - Must use same evaluation methodology: Silhouette Score, Davies-Bouldin Index, cluster purity
+    - Must fit PCA ONCE on full embeddings and apply same 2D projection to all algorithms
+    - Must handle DBSCAN's variable cluster count (not fixed at 4) and noise points (-1 labels)
+    - Must maintain consistent data formats: .csv for assignments, .json for metrics
+    - Must use random_state=42 for PCA reproducibility
+    - Must generate publication-quality visualizations (300 DPI, 12×12 inches for 2×2 subplots)
+    - Must document negative results honestly (all algorithms likely struggle with 768D)
+    - Must follow PEP 8 coding standards with complete type hints and docstrings
+    - Must create comprehensive markdown report with 6 required sections
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>AlgorithmComparison.create_comparison_matrix</name>
+      <kind>function</kind>
+      <signature>create_comparison_matrix(all_results: Dict[str, Dict]) -> pd.DataFrame</signature>
+      <path>src/evaluation/algorithm_comparison.py (new)</path>
+      <description>Aggregates metrics from all algorithms into unified comparison DataFrame</description>
+    </interface>
+    <interface>
+      <name>PCAVisualizer.generate_side_by_side</name>
+      <kind>function</kind>
+      <signature>generate_side_by_side(embeddings: np.ndarray, all_labels: Dict[str, np.ndarray], output_path: Path) -> Figure</signature>
+      <path>src/visualization/cluster_plots.py (extend existing)</path>
+      <description>Creates 2×2 subplot visualization with same PCA projection for all algorithms</description>
+    </interface>
+    <interface>
+      <name>ClusteringMetrics.generate_confusion_matrix</name>
+      <kind>function</kind>
+      <signature>generate_confusion_matrix(labels: np.ndarray, ground_truth: np.ndarray) -> np.ndarray</signature>
+      <path>src/evaluation/clustering_metrics.py (existing)</path>
+      <description>Generates confusion matrix for ground truth alignment analysis</description>
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>
+      Project uses pytest ≥7.4.0 testing framework with unit tests and integration tests following existing Epic 5 patterns. Test files located in tests/epic5/ directory. All tests must include type hints, docstrings, and follow PEP 8 standards enforced by ruff linter. Test coverage focuses on comparison logic, metric extraction, visualization generation, and report creation. Mock data used for unit tests; real algorithm results used for integration tests.
+    </standards>
+    <locations>
+      tests/epic5/ - Epic 5 test suite directory (includes test_dbscan_clustering.py, test_hierarchical_clustering.py, test_gmm_clustering.py)
+      New file: tests/epic5/test_algorithm_comparison.py - Unit tests for AlgorithmComparison class
+      New file: tests/epic5/test_comparison_integration.py - Integration tests loading all algorithm results
+    </locations>
+    <ideas>
+      AC1: Test comparison matrix creation with mock algorithm results (4 algorithms × 9 metrics)
+      AC2: Test CSV export of comparison matrix with proper column names and data types
+      AC3: Test PCA consistency (same projection applied to all algorithms, variance explained logged)
+      AC3: Test side-by-side visualization generation (2×2 subplot, all 4 algorithms, 300 DPI output)
+      AC4: Test metric extraction from each algorithm's results files (JSON parsing, schema validation)
+      AC5: Test confusion matrix generation for each algorithm vs ground truth
+      AC5: Test handling of DBSCAN noise points (-1 labels) in confusion matrix
+      AC6: Test that all algorithms load same embeddings file (data/embeddings/train_embeddings.npy)
+      AC7: Test markdown report generation with all 6 required sections present
+      AC8: Test ranking algorithms by different criteria (best speed, best quality, best purity)
+      AC9: Test JSON export with timestamp and complete metadata
+      Integration: Test full pipeline loading K-Means, DBSCAN, Hierarchical, GMM results and generating all outputs
+    </ideas>
+  </tests>
+</story-context>

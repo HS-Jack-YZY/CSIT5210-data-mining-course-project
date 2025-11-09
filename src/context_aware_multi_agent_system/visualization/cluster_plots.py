@@ -10,7 +10,7 @@ Classes:
 
 import logging
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, Dict, Any
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -259,5 +259,166 @@ class PCAVisualizer:
             raise ValueError(f"Saved visualization file is empty: {output_path}")
 
         logger.info(f"✅ Visualization saved ({dpi} DPI PNG)")
+
+        return output_path
+
+    @staticmethod
+    def generate_side_by_side_comparison(
+        embeddings: np.ndarray,
+        all_labels: Dict[str, np.ndarray],
+        all_metrics: Dict[str, Dict[str, Any]],
+        output_path: Path,
+        dpi: int = 300,
+        figsize: Tuple[int, int] = (14, 14)
+    ) -> Path:
+        """
+        Generate side-by-side PCA comparison of multiple clustering algorithms.
+
+        Creates a 2×2 subplot layout with one plot per algorithm, using the same
+        PCA projection for fair visual comparison.
+
+        Args:
+            embeddings: Document embeddings (n_samples, 768) float32
+            all_labels: Dictionary mapping {algorithm_name: cluster_labels}
+            all_metrics: Dictionary mapping {algorithm_name: metrics_dict}
+            output_path: Path to save PNG file
+            dpi: Resolution in dots per inch (default: 300)
+            figsize: Figure size in inches (width, height), default: (14, 14)
+
+        Returns:
+            Path to saved visualization file
+
+        Example:
+            >>> embeddings = np.load("data/embeddings/train_embeddings.npy")
+            >>> all_labels = {
+            ...     "K-Means": kmeans_labels,
+            ...     "DBSCAN": dbscan_labels,
+            ...     "Hierarchical": hierarchical_labels,
+            ...     "GMM": gmm_labels
+            ... }
+            >>> all_metrics = {
+            ...     "K-Means": {"silhouette_score": 0.0008},
+            ...     ...
+            ... }
+            >>> PCAVisualizer.generate_side_by_side_comparison(
+            ...     embeddings, all_labels, all_metrics, Path("comparison.png")
+            ... )
+        """
+        logger.info("📊 Generating side-by-side algorithm comparison...")
+
+        # Fit PCA once on all embeddings (same projection for all algorithms)
+        logger.info("📊 Fitting PCA on embeddings (768D → 2D)...")
+        pca = PCA(n_components=2, random_state=42)
+        embeddings_2d = pca.fit_transform(embeddings)
+        variance_explained = pca.explained_variance_ratio_
+        pc1_var = variance_explained[0]
+        pc2_var = variance_explained[1]
+
+        logger.info(f"✅ PCA complete. Variance explained: PC1={pc1_var*100:.1f}%, PC2={pc2_var*100:.1f}%")
+
+        # Create 2×2 subplot figure
+        fig, axes = plt.subplots(2, 2, figsize=figsize)
+        axes = axes.flatten()
+
+        # Define algorithm order for consistent positioning
+        algorithm_order = ["K-Means", "DBSCAN", "Hierarchical", "GMM"]
+
+        # Filter to only algorithms present in all_labels
+        available_algorithms = [algo for algo in algorithm_order if algo in all_labels]
+
+        if len(available_algorithms) == 0:
+            raise ValueError("No algorithms found in all_labels dictionary")
+
+        # Plot each algorithm
+        for idx, algorithm in enumerate(available_algorithms):
+            if idx >= 4:  # Only plot up to 4 algorithms
+                break
+
+            ax = axes[idx]
+            labels = all_labels[algorithm]
+            metrics = all_metrics.get(algorithm, {})
+
+            # Get unique cluster labels (handle DBSCAN noise points -1)
+            unique_labels = np.unique(labels)
+            n_clusters = len(unique_labels[unique_labels >= 0])
+
+            # Get colorblind-friendly palette
+            if algorithm == "DBSCAN":
+                # For DBSCAN, assign grey to noise points (-1)
+                colors = sns.color_palette("colorblind", n_clusters + 1)
+                noise_color = (0.5, 0.5, 0.5)  # Grey for noise
+            else:
+                colors = sns.color_palette("colorblind", n_clusters)
+
+            # Plot each cluster
+            for cluster_id in unique_labels:
+                mask = (labels == cluster_id)
+
+                if cluster_id == -1:  # DBSCAN noise points
+                    ax.scatter(
+                        embeddings_2d[mask, 0],
+                        embeddings_2d[mask, 1],
+                        c=[noise_color],
+                        label='Noise',
+                        s=3,
+                        alpha=0.3,
+                        marker='x'
+                    )
+                else:
+                    ax.scatter(
+                        embeddings_2d[mask, 0],
+                        embeddings_2d[mask, 1],
+                        c=[colors[int(cluster_id)]],
+                        label=f'Cluster {cluster_id}',
+                        s=4,
+                        alpha=0.5
+                    )
+
+            # Format subplot
+            silhouette = metrics.get("silhouette_score", "N/A")
+            if isinstance(silhouette, (int, float)):
+                silhouette = f"{silhouette:.4f}"
+
+            ax.set_xlabel(f'PC1 ({pc1_var*100:.1f}% variance)', fontsize=10)
+            ax.set_ylabel(f'PC2 ({pc2_var*100:.1f}% variance)', fontsize=10)
+            ax.set_title(
+                f'{algorithm} (n={n_clusters}, Silhouette={silhouette})',
+                fontsize=12,
+                fontweight='bold'
+            )
+            ax.grid(True, alpha=0.2)
+
+            # Only show legend if not too many clusters
+            if n_clusters <= 6:
+                ax.legend(loc='best', fontsize=8, markerscale=2)
+
+        # Hide unused subplots if fewer than 4 algorithms
+        for idx in range(len(available_algorithms), 4):
+            axes[idx].axis('off')
+
+        # Add overall title
+        fig.suptitle(
+            'Clustering Algorithm Comparison (AG News, PCA Projection)',
+            fontsize=14,
+            fontweight='bold',
+            y=0.995
+        )
+
+        plt.tight_layout(rect=[0, 0, 1, 0.99])
+
+        # Create output directory if needed
+        output_path = Path(output_path)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Save figure
+        logger.info(f"📊 Saving side-by-side comparison to {output_path}...")
+        plt.savefig(output_path, dpi=dpi, bbox_inches='tight')
+        plt.close(fig)
+
+        # Validate file creation
+        if not output_path.exists():
+            raise FileNotFoundError(f"Failed to save comparison to {output_path}")
+
+        logger.info(f"✅ Side-by-side comparison saved ({dpi} DPI PNG)")
 
         return output_path
