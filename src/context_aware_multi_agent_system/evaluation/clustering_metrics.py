@@ -120,36 +120,36 @@ class ClusteringMetrics:
         self.n_clusters = n_clusters
 
         logger.info(
-            f"Initialized ClusteringMetrics: {embeddings.shape[0]} documents, {n_clusters} clusters"
+            f"✅ Initialized ClusteringMetrics: {embeddings.shape[0]} documents, {n_clusters} clusters"
         )
 
     def calculate_silhouette_score(self) -> float:
         """Calculate Silhouette Score for cluster quality."""
-        logger.info("Calculating Silhouette Score...")
+        logger.info("📊 Calculating Silhouette Score...")
 
         score = silhouette_score(self.embeddings, self.labels, metric='euclidean')
 
         assert -1.0 <= score <= 1.0
 
-        logger.info(f"Silhouette Score: {score:.4f}")
+        logger.info(f"✅ Silhouette Score: {score:.4f}")
 
         return float(score)
 
     def calculate_davies_bouldin_index(self) -> float:
         """Calculate Davies-Bouldin Index for cluster quality."""
-        logger.info("Computing Davies-Bouldin Index...")
+        logger.info("📊 Computing Davies-Bouldin Index...")
 
         index = davies_bouldin_score(self.embeddings, self.labels)
 
         assert index > 0
 
-        logger.info(f"Davies-Bouldin Index: {index:.4f}")
+        logger.info(f"✅ Davies-Bouldin Index: {index:.4f} (lower is better)")
 
         return float(index)
 
     def calculate_intra_cluster_distance(self) -> Dict[str, float]:
         """Calculate intra-cluster distance for each cluster."""
-        logger.info("Calculating intra-cluster distances...")
+        logger.info("📊 Calculating intra-cluster distances...")
 
         intra_distances = {}
         weighted_sum = 0.0
@@ -161,7 +161,7 @@ class ClusteringMetrics:
             cluster_size = cluster_embeddings.shape[0]
 
             if cluster_size == 0:
-                logger.warning(f"Cluster {cluster_id} is empty")
+                logger.warning(f"⚠️ Cluster {cluster_id} is empty")
                 intra_distances[f'cluster_{cluster_id}'] = 0.0
                 continue
 
@@ -177,13 +177,13 @@ class ClusteringMetrics:
         overall_distance = weighted_sum / total_documents if total_documents > 0 else 0.0
         intra_distances['overall'] = float(overall_distance)
 
-        logger.info(f"Intra-cluster distances computed")
+        logger.info(f"✅ Intra-cluster distances computed")
 
         return intra_distances
 
     def calculate_inter_cluster_distance(self) -> Dict[str, Any]:
         """Calculate inter-cluster distance between cluster centroids."""
-        logger.info("Calculating inter-cluster distances...")
+        logger.info("📊 Calculating inter-cluster distances...")
 
         centroid_distances = euclidean_distances(self.centroids)
 
@@ -201,13 +201,13 @@ class ClusteringMetrics:
             'pairwise': pairwise_distances.tolist()
         }
 
-        logger.info(f"Inter-cluster distances computed")
+        logger.info(f"✅ Inter-cluster distances computed")
 
         return result
 
     def calculate_cluster_purity(self) -> Dict[str, float]:
         """Calculate cluster purity against ground truth AG News labels."""
-        logger.info("Evaluating cluster purity...")
+        logger.info("📊 Evaluating cluster purity...")
 
         purity_scores = {}
         weighted_sum = 0.0
@@ -219,7 +219,7 @@ class ClusteringMetrics:
             cluster_size = len(cluster_ground_truth)
 
             if cluster_size == 0:
-                logger.warning(f"Cluster {cluster_id} is empty")
+                logger.warning(f"⚠️ Cluster {cluster_id} is empty")
                 purity_scores[f'cluster_{cluster_id}'] = 0.0
                 continue
 
@@ -236,26 +236,26 @@ class ClusteringMetrics:
         overall_purity = weighted_sum / total_documents if total_documents > 0 else 0.0
         purity_scores['overall'] = float(overall_purity)
 
-        logger.info(f"Cluster purity: {overall_purity:.4f}")
+        logger.info(f"✅ Cluster purity: {overall_purity:.1%}")
 
         return purity_scores
 
     def generate_confusion_matrix(self) -> np.ndarray:
         """Generate confusion matrix comparing cluster assignments with ground truth."""
-        logger.info("Generating confusion matrix...")
+        logger.info("📊 Generating confusion matrix...")
 
         cm = confusion_matrix(self.ground_truth, self.labels)
 
         assert cm.shape == (4, 4)
         assert cm.sum() == len(self.embeddings)
 
-        logger.info("Confusion Matrix generated")
+        logger.info("✅ Confusion matrix generated")
 
         return cm
 
     def validate_cluster_balance(self) -> Tuple[bool, Dict[str, int]]:
         """Validate cluster size distribution and check for imbalance."""
-        logger.info("Validating cluster balance...")
+        logger.info("📊 Validating cluster balance...")
 
         cluster_sizes_array = np.bincount(self.labels, minlength=self.n_clusters)
         cluster_sizes = {i: int(cluster_sizes_array[i]) for i in range(self.n_clusters)}
@@ -269,18 +269,18 @@ class ClusteringMetrics:
         for cluster_id, size in cluster_sizes.items():
             if size < min_threshold or size > max_threshold:
                 is_balanced = False
-                logger.warning(f"Cluster {cluster_id} imbalanced")
+                logger.warning(f"⚠️ Cluster {cluster_id} imbalanced: {size} documents ({size/total_documents:.1%})")
 
         if is_balanced:
-            logger.info("Cluster balance validated")
+            logger.info("✅ Cluster balance validated")
         else:
-            logger.warning("Cluster imbalance detected")
+            logger.warning("⚠️ Cluster imbalance detected")
 
         return is_balanced, cluster_sizes
 
     def evaluate_all(self) -> Dict[str, Any]:
         """Compute all cluster quality metrics."""
-        logger.info("Running comprehensive cluster quality evaluation...")
+        logger.info("📊 Running comprehensive cluster quality evaluation...")
 
         silhouette = self.calculate_silhouette_score()
         davies_bouldin = self.calculate_davies_bouldin_index()
@@ -299,6 +299,6 @@ class ClusteringMetrics:
             'is_balanced': is_balanced
         }
 
-        logger.info("Cluster quality evaluation complete")
+        logger.info("✅ Cluster quality evaluation complete")
 
         return results
