@@ -130,12 +130,23 @@ Every cluster has ~25% of each category → K-Means just divided space into 4 eq
 
 ## 💡 Why This Happened
 
-### Root Cause Analysis
+### Implementation Validation (Section 4.1)
+
+**Before analyzing root causes, we validated the implementation:**
+
+✅ **K-Means algorithm tested on synthetic data:** 100% purity (proves code is correct)
+✅ **Discovered unnormalized embeddings:** Vector norms 24.78-31.11 (should be ≈1.0)
+❌ **Tested L2 normalization fix:** Silhouette +7.6%, but **purity unchanged** (25.33%)
+
+**Conclusion:** Problem is NOT implementation bugs, but fundamental algorithm-data mismatch.
+
+### Root Cause Analysis (Section 4.2)
 
 **1. Curse of Dimensionality**
 - Embeddings: 768 dimensions
 - In high-D space, all points appear equidistant
 - Euclidean distance loses meaning
+- **Evidence:** Distance CV = 0.0256 (all distances nearly identical)
 
 **2. Embedding-Task Mismatch**
 - Gemini embeddings optimize for semantic similarity

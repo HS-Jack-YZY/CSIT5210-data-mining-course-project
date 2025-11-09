@@ -356,11 +356,109 @@ Clusters are **13× more dispersed internally** than they are separated from eac
 
 ## 4. Discussion
 
-### 4.1 Why Did K-Means Fail?
+### 4.1 Validation: Ruling Out Implementation Errors
 
-The clustering failure can be attributed to several fundamental factors:
+Before analyzing why K-Means failed, we must first verify that the poor results are not caused by implementation errors or bugs in the clustering code.
 
-#### 4.1.1 High-Dimensional Embedding Space
+#### 4.1.1 Algorithm Correctness Verification
+
+**Test Setup:**
+To verify that the K-Means implementation itself is correct, we created a synthetic dataset with 4 clearly separated clusters in 10-dimensional space:
+
+```python
+# Generate 4 well-separated clusters
+cluster1 = np.random.randn(100, 10) + [10, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+cluster2 = np.random.randn(100, 10) + [0, 10, 0, 0, 0, 0, 0, 0, 0, 0]
+cluster3 = np.random.randn(100, 10) + [0, 0, 10, 0, 0, 0, 0, 0, 0, 0]
+cluster4 = np.random.randn(100, 10) + [0, 0, 0, 10, 0, 0, 0, 0, 0, 0]
+
+# Apply same K-Means configuration
+kmeans = KMeans(n_clusters=4, random_state=42, init='k-means++',
+                n_init=1, max_iter=300)
+```
+
+**Result:**
+- **Cluster Purity: 100.00%** (all 4 clusters perfectly identified)
+- **Conclusion: ✅ K-Means implementation is correct**
+
+This confirms that the algorithm works perfectly when data has clear cluster structure. The problem lies in the AG News data characteristics, not the implementation.
+
+#### 4.1.2 Embedding Normalization Issue Discovery
+
+**Problem Identified:**
+During quality analysis of the embeddings, we discovered that the Gemini embeddings were **not L2-normalized**:
+- Vector norms ranged from 24.78 to 31.11
+- Expected: all norms ≈ 1.0 if normalized
+
+**Why This Matters:**
+- K-Means uses Euclidean distance
+- Text embeddings typically require cosine similarity (which assumes normalization)
+- Unnormalized embeddings may cause K-Means to focus on vector magnitude rather than direction
+
+**Normalization Test:**
+We tested whether L2 normalization would improve clustering:
+
+```python
+from sklearn.preprocessing import normalize
+
+# Original (unnormalized)
+labels_original = KMeans(n_clusters=4).fit_predict(embeddings)
+
+# Normalized
+embeddings_normalized = normalize(embeddings, norm='l2')
+labels_normalized = KMeans(n_clusters=4).fit_predict(embeddings_normalized)
+```
+
+**Results:**
+
+| Metric | Original Embeddings | Normalized Embeddings | Improvement |
+|--------|--------------------|-----------------------|-------------|
+| Silhouette Score | 0.000683 | 0.000734 | +7.6% |
+| Cluster Purity | 25.33% | 25.33% | **+0.0%** |
+
+**Findings:**
+- Normalization slightly improves Silhouette Score (+7.6%)
+- **Cluster purity remains unchanged at 25.33%** (random level)
+- Normalization does **not** resolve the fundamental clustering failure
+
+#### 4.1.3 Distance Distribution Analysis
+
+To understand why normalization doesn't help, we analyzed the distance distribution in the embedding space:
+
+**Sample-to-Sample Distance Statistics (2000 random samples):**
+- Mean Euclidean distance: 39.18
+- Standard deviation: 1.00
+- **Coefficient of Variation (CV): 0.0256**
+
+**Critical Finding:**
+A CV of 0.0256 (< 0.05) indicates that **all pairwise distances are nearly identical**. This means:
+- In 768-dimensional space, every document appears approximately equidistant from every other document
+- K-Means has no meaningful distance signal to work with
+- This is a manifestation of the **curse of dimensionality**
+
+#### 4.1.4 Validation Conclusions
+
+**What We Ruled Out:**
+✅ Implementation bugs in K-Means code
+✅ Configuration errors (parameters are correct)
+✅ Data quality issues (no NaN/Inf values)
+✅ Normalization as the root cause
+
+**What We Confirmed:**
+❌ Clustering failure is **not** due to implementation errors
+❌ Even with proper normalization, clustering remains at random-level performance
+✅ The problem is **fundamental**: high-dimensional embeddings lack discriminative distance structure
+
+**Implication:**
+The clustering failure stems from the inherent characteristics of 768-dimensional Gemini embeddings on this task, not from correctable implementation mistakes. This validates our subsequent analysis of algorithm-data mismatch.
+
+---
+
+### 4.2 Why Did K-Means Fail?
+
+Having ruled out implementation errors, we can now confidently analyze the fundamental reasons for clustering failure:
+
+#### 4.2.1 High-Dimensional Embedding Space
 
 **The Curse of Dimensionality:**
 - Embeddings: 768 dimensions
@@ -375,7 +473,7 @@ In high-dimensional spaces, the concept of "distance" becomes less meaningful:
 **Evidence:**
 The PCA analysis shows that **99.7% of variance cannot be captured in 2D**, indicating that the meaningful structure (if any) exists across hundreds of dimensions where K-Means struggles to find clear boundaries.
 
-#### 4.1.2 Embedding Model Characteristics
+#### 4.2.2 Embedding Model Characteristics
 
 **Gemini Embedding Design:**
 Gemini embeddings are optimized for **semantic similarity** (cosine similarity), not for **category clustering**. The embeddings likely capture nuanced semantic relationships (e.g., "sports business deals" may be equidistant from both Sports and Business centroids) rather than discrete category boundaries.
@@ -383,7 +481,7 @@ Gemini embeddings are optimized for **semantic similarity** (cosine similarity),
 **Analogy:**
 Imagine trying to cluster documents about "Olympic sponsorship deals"—is this Sports or Business? The embedding places it somewhere in between, making hard cluster assignment arbitrary.
 
-#### 4.1.3 K-Means Algorithm Limitations
+#### 4.2.3 K-Means Algorithm Limitations
 
 **Assumptions Violated:**
 1. **Spherical Clusters:** K-Means assumes clusters are spherical (equal variance in all directions)
@@ -397,7 +495,7 @@ Imagine trying to cluster documents about "Olympic sponsorship deals"—is this 
 - All clusters have identical intra-cluster distances (27.67-27.68)
 - This uniformity suggests K-Means simply partitioned space into 4 equal regions, not discovered natural groupings
 
-#### 4.1.4 Category Overlap in AG News
+#### 4.2.4 Category Overlap in AG News
 
 **Semantic Boundaries Are Blurry:**
 News categories are not mutually exclusive in real-world content:

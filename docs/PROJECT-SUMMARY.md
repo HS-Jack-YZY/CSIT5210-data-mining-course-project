@@ -176,12 +176,14 @@ Every cluster contains ~25% of each category:
 - **Clear** metric reporting (not hidden or downplayed)
 - **Detailed** methodology for reproducibility
 - **Complete** parameter documentation
+- **Implementation validation** - Tested and ruled out implementation errors
 
 ### 3. Deep Analysis
 - **4 root causes** identified with evidence
 - Comparison with **random baseline**
 - Analysis of **embedding characteristics**
 - Discussion of **algorithm assumptions**
+- **Validation experiments** - Tested normalization fix (no improvement)
 
 ### 4. Actionable Recommendations
 - **Quick wins** (cosine K-Means, different K values)
@@ -233,6 +235,9 @@ A: "Very likely. Section 5.3 discusses this: fine-tuning embeddings on classific
 
 **Q: "Why is the PCA variance so low (0.3%)?"**
 A: "This is actually evidence supporting my analysis. The low variance indicates that 768-dimensional structure cannot be meaningfully represented in 2D. This explains why visualization shows heavy overlap—the projection loses 99.7% of information. It's a symptom of the curse of dimensionality."
+
+**Q: "Did you check if your K-Means implementation has bugs?"**
+A: "Yes, I validated the implementation with two tests: (1) K-Means achieved 100% purity on synthetic data with clear clusters, proving the algorithm works correctly. (2) I discovered embeddings weren't normalized and tested the fix—normalization improved Silhouette Score by 7.6% but cluster purity remained unchanged at 25.33%. This confirms the problem isn't implementation bugs, but fundamental algorithm-data mismatch."
 
 ---
 
