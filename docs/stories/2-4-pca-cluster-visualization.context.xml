@@ -1,0 +1,273 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>2</epicId>
+    <storyId>4</storyId>
+    <title>PCA Cluster Visualization</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-09</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/2-4-pca-cluster-visualization.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>a data mining student</asA>
+    <iWant>a clear 2D visualization showing 4 distinct semantic clusters</iWant>
+    <soThat>I can demonstrate clustering effectiveness visually in my report</soThat>
+    <tasks>
+- Implement PCAVisualizer class in `src/visualization/cluster_plots.py` (AC: #1, #2, #3, #4, #5, #8)
+- Create PCA visualization script `scripts/04_visualize_clusters.py` (AC: #7, #9, #10)
+- Implement PCA dimensionality reduction (AC: #1)
+- Implement scatter plot generation (AC: #2, #3, #4)
+- Implement high-quality PNG export (AC: #5)
+- Optional: Implement interactive Plotly visualization (AC: #6)
+- Test PCA visualization (AC: #1-#10)
+- Update project documentation (AC: all)
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+AC-1: PCA Dimensionality Reduction - PCA reduces 768-dimensional embeddings to 2D, applies to both embeddings and centroids, calculates variance explained (target >20%)
+
+AC-2: Scatter Plot Generation with Cluster Colors - Display all 120K documents with distinct colorblind-friendly colors per cluster, small point size, alpha transparency
+
+AC-3: Cluster Centroids Visualization - Mark centroids with star symbols, larger size, black edge, same color as cluster
+
+AC-4: Plot Formatting and Labels - Axis labels with variance explained, descriptive title, legend, grid, tight layout
+
+AC-5: High-Quality PNG Export - Save to visualizations/cluster_pca.png, 300 DPI, PNG format, auto-create directory
+
+AC-6: Optional Interactive Plotly Visualization - Plotly scatter with hover tooltips, interactive legend, saved as HTML
+
+AC-7: Variance Explained Logging - Log PC1, PC2, and total variance; warning if <20%
+
+AC-8: Colorblind-Friendly Palette - Use seaborn "colorblind" or matplotlib "tab10" palette
+
+AC-9: Logging and Observability - Emoji-prefixed logs for all major operations with timing
+
+AC-10: Error Handling - Clear errors for missing files, shape validation, automatic directory creation
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/tech-spec-epic-2.md</path>
+        <title>Epic 2 Technical Specification: K-Means Clustering Implementation</title>
+        <section>Story 2.4 - PCA Cluster Visualization (ClusterPlots module)</section>
+        <snippet>ClusterPlots module applies PCA (768D → 2D) for visualization, generates scatter plot with 4 colored clusters, marks centroids on plot, exports 300 DPI PNG for report inclusion. Uses sklearn.decomposition.PCA and matplotlib/seaborn for publication-quality visualizations.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-2.md</path>
+        <title>Epic 2 Technical Specification</title>
+        <section>APIs and Interfaces → ClusterPlots API</section>
+        <snippet>generate_pca_visualization(embeddings: np.ndarray (120000, 768) float32, labels: np.ndarray (120000,) int32, centroids: np.ndarray (4, 768) float32, output_path: Path) -> Path. Saves 300 DPI PNG plot, returns path.</snippet>
+      </doc>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Product Requirements Document</title>
+        <section>FR-5: Cluster Visualization</section>
+        <snippet>Apply PCA dimensionality reduction (768D → 2D), generate scatter plot with 4 colored clusters, mark cluster centroids on visualization, add legend with cluster labels, export visualization as PNG/PDF (high resolution for report). Priority: Critical (P0) - Core "wow moment" visualization.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>System Architecture</title>
+        <section>Technology Stack → Visualization</section>
+        <snippet>matplotlib ≥3.7 + seaborn ≥0.12 for academic-quality figures (300 DPI). PCA (2 components) from sklearn.decomposition to visualize 768D in 2D scatter plot. All visualizations use colorblind-friendly palettes.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>src/context_aware_multi_agent_system/config.py</path>
+        <kind>utility</kind>
+        <symbol>Config, Paths</symbol>
+        <lines>19-277</lines>
+        <reason>Configuration and path management classes - use Config.get() for params and Paths for directory management (e.g., paths.data_processed, paths.data_embeddings)</reason>
+      </artifact>
+      <artifact>
+        <path>src/context_aware_multi_agent_system/utils/reproducibility.py</path>
+        <kind>utility</kind>
+        <symbol>set_seed</symbol>
+        <lines>15-51</lines>
+        <reason>Reproducibility function - call set_seed(42) at script start for deterministic PCA projections</reason>
+      </artifact>
+      <artifact>
+        <path>src/context_aware_multi_agent_system/models/clustering.py</path>
+        <kind>model</kind>
+        <symbol>KMeansClustering</symbol>
+        <lines>20-214</lines>
+        <reason>K-Means clustering class with validation patterns and logging - reference for emoji-prefixed logging (📊, ✅, ⚠️, ❌) and data validation approach</reason>
+      </artifact>
+      <artifact>
+        <path>scripts/03_evaluate_clustering.py</path>
+        <kind>script</kind>
+        <symbol>main</symbol>
+        <lines>1-100</lines>
+        <reason>Example script showing logging setup, data loading patterns, file path handling, and emoji-prefixed logging style - template for 04_visualize_clusters.py</reason>
+      </artifact>
+      <artifact>
+        <path>data/embeddings/train_embeddings.npy</path>
+        <kind>data</kind>
+        <symbol>train_embeddings</symbol>
+        <lines>N/A</lines>
+        <reason>Input embeddings file (120000, 768) float32 - load with np.load(paths.data_embeddings / "train_embeddings.npy")</reason>
+      </artifact>
+      <artifact>
+        <path>data/processed/cluster_assignments.csv</path>
+        <kind>data</kind>
+        <symbol>cluster_assignments</symbol>
+        <lines>N/A</lines>
+        <reason>Input cluster labels CSV - load with pd.read_csv(), extract labels column as int32</reason>
+      </artifact>
+      <artifact>
+        <path>data/processed/centroids.npy</path>
+        <kind>data</kind>
+        <symbol>centroids</symbol>
+        <lines>N/A</lines>
+        <reason>Input centroids file (4, 768) float32 - load with np.load(paths.data_processed / "centroids.npy")</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <python>
+        <package name="scikit-learn" version=">=1.7.2" usage="PCA (sklearn.decomposition.PCA) for dimensionality reduction (768D → 2D)" />
+        <package name="matplotlib" version=">=3.7.0" usage="Core plotting library (pyplot.scatter, pyplot.subplots, pyplot.savefig)" />
+        <package name="seaborn" version=">=0.12.0" usage="Colorblind-friendly palettes (sns.color_palette('colorblind', 4))" />
+        <package name="numpy" version=">=1.24.0" usage="Array operations, loading .npy files, dtype handling (float32, int32)" />
+        <package name="pandas" version=">=2.0.0" usage="CSV loading (pd.read_csv) for cluster_assignments.csv" />
+        <package name="plotly" version="optional" usage="Optional interactive visualization (plotly.graph_objects for HTML export)" />
+      </python>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+- **Performance**: PCA + plotting must complete <5 minutes for 120K documents (NFR-1)
+- **Reproducibility**: Fixed random_state=42 for PCA ensures deterministic projections (use set_seed(42))
+- **Logging**: Use emoji-prefixed logging (📊 INFO, ✅ SUCCESS, ⚠️ WARNING, ❌ ERROR) following existing script patterns
+- **Error Handling**: Validate input file existence and data schema before visualization, clear error messages with troubleshooting guidance
+- **File Naming**: snake_case for modules (cluster_plots.py), PascalCase for classes (PCAVisualizer)
+- **Configuration Access**: No hardcoded values - all parameters from config.yaml via Config.get()
+- **Data Types**: Embeddings float32 (120000, 768), Labels int32 (120000,), Centroids float32 (4, 768)
+- **Output Format**: PNG 300 DPI, tight layout, colorblind-friendly colors (seaborn "colorblind" or matplotlib "tab10")
+- **Directory Creation**: Auto-create visualizations/ directory with Path.mkdir(parents=True, exist_ok=True)
+- **Initialization Order**: set_seed(42) → load config → setup logger → validate inputs → execute
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>PCAVisualizer.__init__</name>
+      <kind>class constructor</kind>
+      <signature>def __init__(self, embeddings: np.ndarray, labels: np.ndarray, centroids: np.ndarray)</signature>
+      <path>src/context_aware_multi_agent_system/visualization/cluster_plots.py (to be created)</path>
+    </interface>
+    <interface>
+      <name>PCAVisualizer.apply_pca</name>
+      <kind>method</kind>
+      <signature>def apply_pca(self, n_components: int = 2) -> tuple[np.ndarray, np.ndarray, float]</signature>
+      <path>src/context_aware_multi_agent_system/visualization/cluster_plots.py (to be created)</path>
+    </interface>
+    <interface>
+      <name>PCAVisualizer.generate_visualization</name>
+      <kind>method</kind>
+      <signature>def generate_visualization(self, output_path: Path, dpi: int = 300, figsize: tuple[int, int] = (10, 8)) -> Path</signature>
+      <path>src/context_aware_multi_agent_system/visualization/cluster_plots.py (to be created)</path>
+    </interface>
+    <interface>
+      <name>Config.get</name>
+      <kind>method (existing)</kind>
+      <signature>def get(self, key: str, default: Any = None) -> Any</signature>
+      <path>src/context_aware_multi_agent_system/config.py:72-98</path>
+    </interface>
+    <interface>
+      <name>Paths</name>
+      <kind>class (existing)</kind>
+      <signature>Provides paths.data_embeddings, paths.data_processed, paths.project_root</signature>
+      <path>src/context_aware_multi_agent_system/config.py:204-277</path>
+    </interface>
+    <interface>
+      <name>set_seed</name>
+      <kind>function (existing)</kind>
+      <signature>def set_seed(seed: int) -> None</signature>
+      <path>src/context_aware_multi_agent_system/utils/reproducibility.py:15-51</path>
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>
+Follow existing test patterns from Epic 2. All tests use pytest framework with fixtures for test data setup.
+
+**Unit Test Standards:**
+- Test individual methods in isolation with small synthetic datasets (1000 samples)
+- Validate input/output shapes, dtypes, and value ranges
+- Use pytest.raises() for exception testing
+- Mock file I/O where appropriate to avoid dependencies
+
+**Integration Test Standards:**
+- Test full pipeline from data loading to visualization export
+- Use actual cluster results from Story 2.2 (cluster_assignments.csv, centroids.npy)
+- Validate file outputs exist and have correct format/resolution
+- Test execution time meets performance targets (<5 minutes)
+
+**Visual Inspection Standards:**
+- Manually review generated PNG for quality (4 distinct clusters, centroids marked, legend readable)
+- Check colorblind accessibility (use seaborn "colorblind" palette)
+- Verify 300 DPI resolution and tight layout
+
+**Test Coverage Goals:**
+- PCAVisualizer class: all methods (apply_pca, generate_visualization)
+- Variance explained: range validation [0, 1], threshold warning (<20%)
+- File I/O: PNG save, path creation, file validation
+- Error handling: missing files, shape mismatches, dtype errors
+    </standards>
+    <locations>
+tests/epic2/test_cluster_visualization.py - Unit tests for PCAVisualizer class
+tests/epic2/test_visualization_pipeline.py - Integration test for full visualization script
+visualizations/ - Output directory for generated plots
+    </locations>
+    <ideas>
+**AC-1 Tests (PCA Dimensionality Reduction):**
+- test_pca_reduces_dimensions: Verify embeddings (n, 768) → (n, 2) and centroids (4, 768) → (4, 2)
+- test_pca_variance_explained: Validate variance in range [0, 1] and sum of PC1+PC2 variance
+- test_pca_reproducibility: Same input + random_state=42 → identical projections across runs
+- test_pca_transforms_centroids: Verify centroids are also projected to 2D space
+
+**AC-2 Tests (Scatter Plot Generation):**
+- test_scatter_plot_all_clusters: Verify all 4 clusters plotted with distinct colors
+- test_colorblind_palette: Check seaborn "colorblind" or matplotlib "tab10" palette used
+- test_point_alpha_transparency: Verify alpha parameter applied for visibility
+
+**AC-3 Tests (Centroids Visualization):**
+- test_centroids_marked_with_stars: Check centroid markers are star symbols (marker='*')
+- test_centroids_larger_than_points: Verify centroid marker size > data point size
+- test_centroids_black_edge: Check edgecolors='black' applied
+
+**AC-4 Tests (Plot Formatting):**
+- test_axis_labels_include_variance: Verify x/y labels show "PC1 (XX.X% variance)" format
+- test_title_descriptive: Check title is "K-Means Clustering of AG News (K=4, PCA Projection)"
+- test_legend_present: Verify legend shows all clusters and centroids
+- test_grid_enabled: Check grid is visible (alpha=0.3)
+
+**AC-5 Tests (PNG Export):**
+- test_png_saved_correct_path: Verify output saved to visualizations/cluster_pca.png
+- test_png_300_dpi: Check image resolution is 300 DPI using PIL
+- test_directory_auto_created: Verify visualizations/ created if doesn't exist
+- test_file_size_reasonable: Check file size <5 MB (full data) or <1 MB (subsampled)
+
+**AC-7 Tests (Variance Logging):**
+- test_variance_logged: Verify PC1, PC2, total variance logged
+- test_low_variance_warning: If total <20%, check warning logged
+- test_good_variance_success: If total >=20%, check success message logged
+
+**AC-9 Tests (Logging):**
+- test_emoji_prefixed_logs: Verify all logs use 📊, ✅, ⚠️, ❌ prefixes
+- test_all_steps_logged: Check major operations logged (loading, PCA, plotting, saving)
+
+**AC-10 Tests (Error Handling):**
+- test_missing_embeddings_error: Remove embeddings.npy → FileNotFoundError with clear message
+- test_missing_cluster_assignments_error: Remove cluster_assignments.csv → FileNotFoundError
+- test_shape_mismatch_error: Wrong embedding shape → ValueError with helpful message
+- test_dtype_mismatch_error: Wrong dtype → ValueError
+
+**Integration Tests:**
+- test_full_visualization_pipeline: Run scripts/04_visualize_clusters.py → verify PNG created
+- test_execution_time: Full pipeline completes <5 minutes
+- test_reproducible_visualization: Multiple runs → identical PCA projections
+    </ideas>
+  </tests>
+</story-context>

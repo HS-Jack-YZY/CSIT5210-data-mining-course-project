@@ -228,31 +228,68 @@ python scripts/03_evaluate_clustering.py
 ```
 
 This script will:
-- Calculate Silhouette Score (target: >0.3 for good separation)
+- Load embeddings, cluster assignments, and centroids
+- Calculate Silhouette Score (target >0.3)
 - Calculate Davies-Bouldin Index (lower is better)
-- Compute intra-cluster and inter-cluster distances
-- Evaluate cluster purity against AG News ground truth (target: >70%)
-- Generate 4x4 confusion matrix (clusters vs categories)
-- Validate cluster balance
-- Export results to `data/processed/cluster_quality.json`
+- Calculate Cluster Purity vs ground truth labels
+- Generate confusion matrix
+- Assess cluster balance
 
 **Expected Output:**
 ```
-📊 Starting cluster quality evaluation...
 📊 Computing cluster quality metrics...
-✅ Silhouette Score: 0.3472 (Good - target >0.3 met)
-📊 Davies-Bouldin Index: 1.234 (lower is better)
-📊 Cluster Purity: 0.8215 (82.2%) (Good - target >70% met)
-📊 Cluster Balance: ✅ Balanced
 ✅ Cluster Quality Evaluation Complete
-⏱️ Total execution time: 2m 41s
+   - Silhouette Score: 0.2841 (Target: >0.3, ⚠️ Below target)
+   - Davies-Bouldin Index: 1.85
+   - Cluster Purity: 68.5% (Target: >70%, ⚠️ Below target)
+   - Cluster Balance: Balanced
 ```
 
-**Metrics Interpretation:**
-- **Silhouette Score**: Measures how well documents fit their clusters vs other clusters (-1 to 1, higher is better)
-- **Davies-Bouldin Index**: Ratio of within-cluster to between-cluster distances (lower is better)
-- **Cluster Purity**: Percentage of documents matching dominant AG News category per cluster
-- **Confusion Matrix**: Shows cluster-to-category alignment (saved as `confusion_matrix.npy`)
+### PCA Cluster Visualization
+
+Generate publication-quality 2D visualization of clusters using PCA dimensionality reduction:
+
+```bash
+python scripts/04_visualize_clusters.py
+```
+
+This script will:
+- Apply PCA dimensionality reduction (768D → 2D)
+- Generate scatter plot showing 4 semantic clusters with distinct colors
+- Mark cluster centroids with star symbols
+- Calculate variance explained by PC1 and PC2
+- Export 300 DPI PNG visualization for reports
+- Optionally generate interactive Plotly HTML visualization
+
+**Expected Output:**
+```
+📊 Starting PCA cluster visualization...
+📊 Loading embeddings and cluster labels...
+✅ Loaded 120000 embeddings (768D)
+📊 Applying PCA dimensionality reduction (768D → 2D)...
+✅ PCA complete. Variance explained: 0.3%
+📊 PC1 variance: 0.2%
+📊 PC2 variance: 0.2%
+⚠️ Low variance explained (0.3%), 2D projection may lose information
+📊 Generating cluster scatter plot...
+✅ Visualization saved: visualizations/cluster_pca.png (300 DPI)
+✅ PCA Cluster Visualization Complete
+   - Documents visualized: 120,000
+   - Variance explained: 0.3% (PC1: 0.2%, PC2: 0.2%)
+   - Output: visualizations/cluster_pca.png (300 DPI)
+   - Execution time: 1.0s
+```
+
+**Output Files:**
+- `visualizations/cluster_pca.png` - Static scatter plot (300 DPI, publication quality)
+- `visualizations/cluster_pca.html` - Interactive Plotly visualization (optional, requires plotly)
+
+**Variance Explained Interpretation:**
+- >20%: Good projection, 2D captures main structure
+- 10-20%: Acceptable for visualization, some information loss
+- <10%: High-dimensional data, 2D is rough approximation
+
+**Note**: Low variance (<20%) is expected for high-dimensional text embeddings. The visualization is still useful for demonstrating cluster separation and qualitative assessment.
 
 ### Embedding Generation (Programmatic)
 
