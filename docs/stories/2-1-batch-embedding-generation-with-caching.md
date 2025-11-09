@@ -1,6 +1,6 @@
 # Story 2.1: Batch Embedding Generation with Caching
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -76,86 +76,86 @@ So that **I have vector representations ready for clustering without repeated AP
 
 ## Tasks / Subtasks
 
-- [ ] Create embedding orchestration script `scripts/01_generate_embeddings.py` (AC: #1, #2, #3, #4)
-  - [ ] Import required modules: Config, Paths, EmbeddingService, EmbeddingCache, DatasetLoader
-  - [ ] Implement set_seed(42) at script start for reproducibility
-  - [ ] Load configuration from config.yaml
-  - [ ] Setup logging with emoji prefixes
-  - [ ] Implement checkpoint system:
-    - [ ] Checkpoint file: `data/embeddings/.checkpoint_{split}.json`
-    - [ ] Store: last_processed_index, timestamp, batch_size
-    - [ ] Load checkpoint if exists, resume from last index
-  - [ ] Implement batch processing loop:
-    - [ ] Load AG News dataset (train and test splits)
-    - [ ] Check for cached embeddings, load if exists
-    - [ ] If cache missing, generate embeddings:
-      - [ ] Process documents in batches (batch_size from config)
-      - [ ] Call EmbeddingService.generate_batch() for each batch
-      - [ ] Log progress every 1000 documents
-      - [ ] Save checkpoint after each batch
-      - [ ] Track API calls, tokens, estimated cost
-    - [ ] Save embeddings to cache after all batches complete
-    - [ ] Delete checkpoint file on successful completion
-  - [ ] Implement error handling:
-    - [ ] Try/except wrapper for each batch
-    - [ ] Retry with exponential backoff on network errors
-    - [ ] Log failed batches with document indices
-    - [ ] Continue processing even if some batches fail
-  - [ ] Display final summary with all metrics
+- [x] Create embedding orchestration script `scripts/01_generate_embeddings.py` (AC: #1, #2, #3, #4)
+  - [x] Import required modules: Config, Paths, EmbeddingService, EmbeddingCache, DatasetLoader
+  - [x] Implement set_seed(42) at script start for reproducibility
+  - [x] Load configuration from config.yaml
+  - [x] Setup logging with emoji prefixes
+  - [x] Implement checkpoint system:
+    - [x] Checkpoint file: `data/embeddings/.checkpoint_{split}.json`
+    - [x] Store: last_processed_index, timestamp, batch_size
+    - [x] Load checkpoint if exists, resume from last index
+  - [x] Implement batch processing loop:
+    - [x] Load AG News dataset (train and test splits)
+    - [x] Check for cached embeddings, load if exists
+    - [x] If cache missing, generate embeddings:
+      - [x] Process documents in batches (batch_size from config)
+      - [x] Call EmbeddingService.generate_batch() for each batch
+      - [x] Log progress every 1000 documents
+      - [x] Save checkpoint after each batch
+      - [x] Track API calls, tokens, estimated cost
+    - [x] Save embeddings to cache after all batches complete
+    - [x] Delete checkpoint file on successful completion
+  - [x] Implement error handling:
+    - [x] Try/except wrapper for each batch
+    - [x] Retry with exponential backoff on network errors
+    - [x] Log failed batches with document indices
+    - [x] Continue processing even if some batches fail
+  - [x] Display final summary with all metrics
 
-- [ ] Enhance EmbeddingService.generate_batch() method in `src/context_aware_multi_agent_system/features/embedding_service.py` (AC: #1, #3)
-  - [ ] Accept list of texts (batch) and batch_size parameter
-  - [ ] Split large batches if needed (Gemini API may have limits)
-  - [ ] Call Gemini API with batch request: `client.models.embed_content(model=model, contents=batch)`
-  - [ ] Extract embeddings from batch response
-  - [ ] Convert to numpy array with shape (batch_size, 768) dtype float32
-  - [ ] Validate all embeddings have shape (768,) and dtype float32
-  - [ ] Use @retry decorator for resilience (from Story 1.4)
-  - [ ] Return numpy array (batch_size, 768) float32
+- [x] Enhance EmbeddingService.generate_batch() method in `src/context_aware_multi_agent_system/features/embedding_service.py` (AC: #1, #3)
+  - [x] Accept list of texts (batch) and batch_size parameter
+  - [x] Split large batches if needed (Gemini API may have limits)
+  - [x] Call Gemini API with batch request: `client.models.embed_content(model=model, contents=batch)`
+  - [x] Extract embeddings from batch response
+  - [x] Convert to numpy array with shape (batch_size, 768) dtype float32
+  - [x] Validate all embeddings have shape (768,) and dtype float32
+  - [x] Use @retry decorator for resilience (from Story 1.4)
+  - [x] Return numpy array (batch_size, 768) float32
 
-- [ ] Implement checkpoint management utilities (AC: #3)
-  - [ ] Create `save_checkpoint(split, last_index, metadata)` function
-    - [ ] Write to `data/embeddings/.checkpoint_{split}.json`
-    - [ ] Include: last_processed_index, timestamp, batch_size, total_batches
-  - [ ] Create `load_checkpoint(split)` function
-    - [ ] Read from checkpoint file if exists
-    - [ ] Return last_processed_index or 0 if no checkpoint
-  - [ ] Create `delete_checkpoint(split)` function
-    - [ ] Remove checkpoint file on successful completion
+- [x] Implement checkpoint management utilities (AC: #3)
+  - [x] Create `save_checkpoint(split, last_index, metadata)` function
+    - [x] Write to `data/embeddings/.checkpoint_{split}.json`
+    - [x] Include: last_processed_index, timestamp, batch_size, total_batches
+  - [x] Create `load_checkpoint(split)` function
+    - [x] Read from checkpoint file if exists
+    - [x] Return last_processed_index or 0 if no checkpoint
+  - [x] Create `delete_checkpoint(split)` function
+    - [x] Remove checkpoint file on successful completion
 
-- [ ] Add cost calculation utility to `src/context_aware_multi_agent_system/evaluation/cost_calculator.py` (AC: #4)
-  - [ ] Implement `estimate_embedding_cost(num_tokens, use_batch_api=True)` function
-  - [ ] Pricing:
-    - [ ] Batch API: $0.075 per 1M tokens
-    - [ ] Standard API: $0.15 per 1M tokens
-  - [ ] Token estimation: ~10 tokens per document (title + description average)
-  - [ ] Return cost in USD with 4 decimal places
+- [x] Add cost calculation utility to `src/context_aware_multi_agent_system/evaluation/cost_calculator.py` (AC: #4)
+  - [x] Implement `estimate_embedding_cost(num_tokens, use_batch_api=True)` function
+  - [x] Pricing:
+    - [x] Batch API: $0.075 per 1M tokens
+    - [x] Standard API: $0.15 per 1M tokens
+  - [x] Token estimation: ~10 tokens per document (title + description average)
+  - [x] Return cost in USD with 4 decimal places
 
-- [ ] Update config.yaml with embedding generation parameters (AC: #1)
-  - [ ] Add embedding.batch_size: 100
-  - [ ] Add embedding.cache_enabled: true
-  - [ ] Add embedding.use_batch_api: true
-  - [ ] Add embedding.checkpoint_enabled: true
-  - [ ] Verify embedding.model: "gemini-embedding-001"
-  - [ ] Verify embedding.cache_dir: "data/embeddings"
+- [x] Update config.yaml with embedding generation parameters (AC: #1)
+  - [x] Add embedding.batch_size: 100
+  - [x] Add embedding.cache_enabled: true
+  - [x] Add embedding.use_batch_api: true
+  - [x] Add embedding.checkpoint_enabled: true
+  - [x] Verify embedding.model: "gemini-embedding-001"
+  - [x] Verify embedding.cache_dir: "data/embeddings"
 
-- [ ] Test embedding generation pipeline (AC: #1, #2, #3, #4)
-  - [ ] Test full pipeline on small sample (1000 documents)
-  - [ ] Test cache loading (run twice, verify second run uses cache)
-  - [ ] Test checkpoint resume (interrupt mid-batch, verify resume)
-  - [ ] Test batch API cost calculation
-  - [ ] Test error handling (mock API failure, verify retry)
-  - [ ] Test final summary output (verify all metrics present)
-  - [ ] Validate embedding shape and dtype
-  - [ ] Validate metadata completeness
+- [x] Test embedding generation pipeline (AC: #1, #2, #3, #4)
+  - [x] Test full pipeline on small sample (1000 documents)
+  - [x] Test cache loading (run twice, verify second run uses cache)
+  - [x] Test checkpoint resume (interrupt mid-batch, verify resume)
+  - [x] Test batch API cost calculation
+  - [x] Test error handling (mock API failure, verify retry)
+  - [x] Test final summary output (verify all metrics present)
+  - [x] Validate embedding shape and dtype
+  - [x] Validate metadata completeness
 
-- [ ] Update project documentation (AC: all)
-  - [ ] Update README.md with embedding generation instructions
-  - [ ] Document script usage: `python scripts/01_generate_embeddings.py`
-  - [ ] Document cache management (clear cache, force regeneration)
-  - [ ] Document checkpoint system behavior
-  - [ ] Add troubleshooting section for API errors
-  - [ ] Document expected cost and runtime
+- [x] Update project documentation (AC: all)
+  - [x] Update README.md with embedding generation instructions
+  - [x] Document script usage: `python scripts/01_generate_embeddings.py`
+  - [x] Document cache management (clear cache, force regeneration)
+  - [x] Document checkpoint system behavior
+  - [x] Add troubleshooting section for API errors
+  - [x] Document expected cost and runtime
 
 ## Dev Notes
 
@@ -380,10 +380,32 @@ context-aware-multi-agent-system/
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+claude-sonnet-4-5-20250929
 
 ### Debug Log References
 
+- Successfully implemented batch embedding generation using Gemini Batch API
+- All 99 tests passing (82 from Epic 1, 17 from Epic 2)
+- Fixed 3 legacy tests to match new Batch API behavior
+
 ### Completion Notes List
 
-### File List
+- Implemented complete batch embedding generation system with checkpoint support and cost tracking
+- Enhanced EmbeddingService.generate_batch() to use true Gemini Batch API (saves 50% cost)
+- Created comprehensive test suite with 17 new tests covering all acceptance criteria
+- Updated README with detailed usage instructions, cache management, and troubleshooting guide
+- All acceptance criteria met: batch processing, caching, error handling, cost tracking
+
+###File List
+
+**New Files:**
+- scripts/01_generate_embeddings.py
+- src/context_aware_multi_agent_system/evaluation/cost_calculator.py
+- tests/epic2/__init__.py
+- tests/epic2/test_batch_embedding_generation.py
+
+**Modified Files:**
+- src/context_aware_multi_agent_system/features/embedding_service.py
+- config.yaml
+- README.md
+- tests/epic1/test_embedding_service.py

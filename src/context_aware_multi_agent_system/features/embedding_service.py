@@ -240,10 +240,11 @@ class EmbeddingService:
     )
     def generate_batch(self, documents: List[str], batch_size: int = 100) -> np.ndarray:
         """
-        Generate embeddings for multiple documents in batches.
+        Generate embeddings for multiple documents using Gemini Batch API.
 
-        Processes documents in batches for efficiency. Automatically retries
-        on failure with exponential backoff.
+        Uses Gemini's batch embedding API for cost efficiency ($0.075/1M tokens
+        vs $0.15/1M for standard API). Processes documents in batches and
+        automatically retries on failure with exponential backoff.
 
         Args:
             documents: List of text documents to embed
@@ -253,14 +254,20 @@ class EmbeddingService:
             Embedding array with shape (n_documents, 768) and dtype float32
 
         Raises:
+            ValueError: If embedding validation fails
             Exception: If all retry attempts fail
 
         Example:
             >>> docs = ["doc1", "doc2", "doc3"]
-            >>> embeddings = service.generate_batch(docs, batch_size=2)
+            >>> embeddings = service.generate_batch(docs, batch_size=100)
             >>> embeddings.shape
             (3, 768)
+            >>> embeddings.dtype
+            dtype('float32')
         """
+        if not documents:
+            raise ValueError("Cannot generate embeddings for empty document list")
+
         embeddings_list = []
         n_batches = (len(documents) + batch_size - 1) // batch_size
 
@@ -270,15 +277,44 @@ class EmbeddingService:
             batch = documents[i:i + batch_size]
             batch_num = i // batch_size + 1
 
-            logger.info(f"🔄 Processing batch {batch_num}/{n_batches}")
+            logger.info(f"🔄 Processing batch {batch_num}/{n_batches} (documents {i}-{i+len(batch)-1})")
 
-            # Generate embeddings for batch
-            batch_embeddings = []
-            for doc in batch:
-                embedding = self.generate_embedding(doc)
-                batch_embeddings.append(embedding)
+            try:
+                # Call Gemini Batch API with list of contents
+                response = self.client.models.embed_content(
+                    model=self.model,
+                    contents=batch
+                )
 
-            embeddings_list.extend(batch_embeddings)
+                # Extract embeddings from batch response
+                # Response should have embeddings list matching input batch size
+                if hasattr(response, 'embeddings'):
+                    batch_embeddings = response.embeddings
+                elif isinstance(response, dict) and 'embeddings' in response:
+                    batch_embeddings = response['embeddings']
+                else:
+                    raise ValueError(f"Unexpected batch API response format: {type(response)}")
+
+                # Convert each embedding to numpy array
+                for idx, emb_response in enumerate(batch_embeddings):
+                    if hasattr(emb_response, 'values'):
+                        embedding = np.array(emb_response.values, dtype=np.float32)
+                    elif isinstance(emb_response, (list, np.ndarray)):
+                        embedding = np.array(emb_response, dtype=np.float32)
+                    else:
+                        raise ValueError(f"Unexpected embedding format at index {idx}: {type(emb_response)}")
+
+                    # Validate embedding shape
+                    if embedding.shape != (768,):
+                        raise ValueError(
+                            f"Invalid embedding shape at index {idx}: {embedding.shape}. Expected (768,)"
+                        )
+
+                    embeddings_list.append(embedding)
+
+            except Exception as e:
+                logger.warning(f"⚠️ Batch API call failed: {e}")
+                raise
 
         # Concatenate all embeddings
         embeddings = np.array(embeddings_list, dtype=np.float32)

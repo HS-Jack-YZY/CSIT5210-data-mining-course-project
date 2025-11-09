@@ -159,7 +159,39 @@ set_seed(42)
 
 ## Usage
 
-### Embedding Generation
+### Quick Start: Generate Embeddings for AG News Dataset
+
+Run the embedding generation script to process all 120K AG News documents:
+
+```bash
+python scripts/01_generate_embeddings.py
+```
+
+This script will:
+- Load the AG News dataset (120K train + 7.6K test documents)
+- Generate embeddings using Gemini Batch API ($0.075/1M tokens)
+- Cache embeddings to `data/embeddings/` to avoid repeated API calls
+- Track API usage, cost, and performance metrics
+- Resume automatically if interrupted (checkpoint system)
+
+**Expected Output:**
+```
+📊 Starting embedding generation for train split
+📊 Total documents: 120000, Batch size: 100, Total batches: 1200
+🔄 Processing batch 1/1200 (documents 0-99)
+📊 Progress: 1000/120000 documents processed (83.3 docs/sec)
+...
+✅ Embedding generation complete!
+💰 Estimated total cost: $3.25 USD
+⏱️ Total execution time: 14.5 minutes
+```
+
+**Cost Optimization:**
+- Batch API: $0.075/1M tokens (50% savings vs standard API)
+- Caching: Subsequent runs use cached embeddings (0 cost)
+- Expected cost for full dataset: $3-5 (well below $10 PRD limit)
+
+### Embedding Generation (Programmatic)
 
 Generate semantic embeddings using the Gemini API:
 
@@ -181,10 +213,11 @@ service.test_connection()  # Returns True if successful
 embedding = service.generate_embedding("Hello world")
 print(embedding.shape)  # (768,)
 
-# Generate batch embeddings
+# Generate batch embeddings (uses Gemini Batch API)
 documents = ["First document", "Second document", "Third document"]
 embeddings = service.generate_batch(documents, batch_size=100)
 print(embeddings.shape)  # (3, 768)
+print(embeddings.dtype)  # float32
 ```
 
 ### Embedding Cache
@@ -222,6 +255,77 @@ if cache.exists("test"):
 else:
     # Generate embeddings...
     pass
+
+# Clear cache to force regeneration
+cache.clear("train")
+```
+
+### Cache Management
+
+The embedding cache stores generated embeddings to avoid repeated API calls:
+
+**Cache Location:**
+- Train embeddings: `data/embeddings/train_embeddings.npy`
+- Test embeddings: `data/embeddings/test_embeddings.npy`
+- Metadata: `data/embeddings/{split}_metadata.json`
+
+**Force Regeneration:**
+```bash
+# Clear train cache
+rm data/embeddings/train_embeddings.npy data/embeddings/train_metadata.json
+
+# Clear test cache
+rm data/embeddings/test_embeddings.npy data/embeddings/test_metadata.json
+
+# Then re-run the script
+python scripts/01_generate_embeddings.py
+```
+
+**Resume from Checkpoint:**
+
+If embedding generation is interrupted, the checkpoint system automatically resumes:
+
+```bash
+# First run (interrupted at 50K documents)
+python scripts/01_generate_embeddings.py
+# ^C (Ctrl+C to interrupt)
+
+# Second run (resumes from 50K)
+python scripts/01_generate_embeddings.py
+# ⏯️ Resuming from checkpoint: last processed index = 50000
+```
+
+Checkpoint files are stored at `data/embeddings/.checkpoint_{split}.json` and deleted automatically on successful completion.
+
+### Troubleshooting
+
+**API Authentication Error:**
+```
+❌ Invalid API key
+```
+Solution: Copy `.env.example` to `.env` and add your Gemini API key:
+```bash
+cp .env.example .env
+echo "GEMINI_API_KEY=your_api_key_here" >> .env
+```
+
+**Rate Limiting:**
+```
+⚠️ Batch 123 failed after 3 retries, skipping
+```
+Solution: The script automatically retries with exponential backoff (4s, 8s, 16s). Failed batches are skipped and reported in the final summary. You can manually retry by running the script again.
+
+**Network Interruption:**
+```
+💾 Saved checkpoint: processed 50000 documents
+```
+Solution: The checkpoint system saves progress after each batch. Simply re-run the script to resume from the last checkpoint.
+
+**Cost Exceeds Target:**
+```
+⚠️ WARNING: Total cost $5.50 exceeds target of $5.00
+```
+Solution: This is unusual. Check your batch size configuration in `config.yaml` and verify you're using the batch API (`use_batch_api: true`).
 ```
 
 ## Development

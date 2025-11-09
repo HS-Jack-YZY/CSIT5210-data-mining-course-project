@@ -228,10 +228,18 @@ class TestEmbeddingGeneration:
         mock_client = MagicMock()
         mock_client_class.return_value = mock_client
 
-        # Mock embedding response
-        mock_response = MagicMock()
-        mock_response.embedding = [0.5] * 768
-        mock_client.models.embed_content.return_value = mock_response
+        # Mock batch embedding response (returns list of embeddings)
+        def mock_embed_content(model, contents):
+            mock_response = MagicMock()
+            mock_embeddings = []
+            for _ in contents:
+                mock_emb = MagicMock()
+                mock_emb.values = [0.5] * 768
+                mock_embeddings.append(mock_emb)
+            mock_response.embeddings = mock_embeddings
+            return mock_response
+
+        mock_client.models.embed_content.side_effect = mock_embed_content
 
         # Generate batch embeddings
         service = EmbeddingService(api_key="test-api-key")
@@ -382,10 +390,18 @@ class TestEdgeCases:
         mock_client = MagicMock()
         mock_client_class.return_value = mock_client
 
-        # Mock embedding response
-        mock_response = MagicMock()
-        mock_response.embedding = [0.5] * 768
-        mock_client.models.embed_content.return_value = mock_response
+        # Mock batch embedding response
+        def mock_embed_content(model, contents):
+            mock_response = MagicMock()
+            mock_embeddings = []
+            for _ in contents:
+                mock_emb = MagicMock()
+                mock_emb.values = [0.5] * 768
+                mock_embeddings.append(mock_emb)
+            mock_response.embeddings = mock_embeddings
+            return mock_response
+
+        mock_client.models.embed_content.side_effect = mock_embed_content
 
         # Generate batch with single document
         service = EmbeddingService(api_key="test-api-key")
@@ -402,10 +418,18 @@ class TestEdgeCases:
         mock_client = MagicMock()
         mock_client_class.return_value = mock_client
 
-        # Mock embedding response
-        mock_response = MagicMock()
-        mock_response.embedding = [0.5] * 768
-        mock_client.models.embed_content.return_value = mock_response
+        # Mock batch embedding response
+        def mock_embed_content(model, contents):
+            mock_response = MagicMock()
+            mock_embeddings = []
+            for _ in contents:
+                mock_emb = MagicMock()
+                mock_emb.values = [0.5] * 768
+                mock_embeddings.append(mock_emb)
+            mock_response.embeddings = mock_embeddings
+            return mock_response
+
+        mock_client.models.embed_content.side_effect = mock_embed_content
 
         # Generate batch with custom batch size
         service = EmbeddingService(api_key="test-api-key")
@@ -416,5 +440,5 @@ class TestEdgeCases:
         assert embeddings.shape == (10, 768)
         assert embeddings.dtype == np.float32
 
-        # Verify number of API calls (10 calls, one per document)
-        assert mock_client.models.embed_content.call_count == 10
+        # Verify number of API calls (4 batches using Batch API)
+        assert mock_client.models.embed_content.call_count == 4

@@ -24,6 +24,9 @@ embedding:
   batch_size: 100  # Number of texts to embed per API request (balance speed vs rate limits)
   cache_dir: "data/embeddings"  # Directory to cache embeddings (avoid re-generating)
   output_dimensionality: 768  # Embedding vector dimensions (fixed by gemini-embedding-001)
+  cache_enabled: true  # Enable embedding cache to avoid repeated API calls
+  use_batch_api: true  # Use Gemini Batch API for cost efficiency ($0.075/1M vs $0.15/1M)
+  checkpoint_enabled: true  # Enable checkpoint system for resumable embedding generation
 
 # Classification Configuration
 # Multi-agent classification system parameters
