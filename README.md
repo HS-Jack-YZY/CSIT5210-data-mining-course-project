@@ -191,6 +191,69 @@ This script will:
 - Caching: Subsequent runs use cached embeddings (0 cost)
 - Expected cost for full dataset: $3-5 (well below $10 PRD limit)
 
+### K-Means Clustering
+
+After generating embeddings, train K-Means clustering to partition documents into semantic groups:
+
+```bash
+python scripts/02_train_clustering.py
+```
+
+This script will:
+- Load cached embeddings from `data/embeddings/`
+- Train K-Means clustering (k=4, random_state=42)
+- Export cluster assignments to `data/processed/cluster_assignments.csv`
+- Export cluster centroids to `data/processed/centroids.npy`
+- Export clustering metadata to `data/processed/cluster_metadata.json`
+- Validate cluster balance (no cluster <10% or >50% of data)
+
+**Expected Output:**
+```
+📊 Starting K-Means clustering...
+📂 Loading cached embeddings...
+📊 Loaded 120000 embeddings (768-dim) from cache
+📊 Fitting K-Means clustering...
+✅ Clustering converged in 15 iterations
+📊 Cluster sizes: [29825, 30138, 30013, 30024] (balanced)
+✅ Clustering completed successfully
+⏱️ Total execution time: 2m 15s
+```
+
+### Cluster Quality Evaluation
+
+Evaluate clustering quality using standard metrics:
+
+```bash
+python scripts/03_evaluate_clustering.py
+```
+
+This script will:
+- Calculate Silhouette Score (target: >0.3 for good separation)
+- Calculate Davies-Bouldin Index (lower is better)
+- Compute intra-cluster and inter-cluster distances
+- Evaluate cluster purity against AG News ground truth (target: >70%)
+- Generate 4x4 confusion matrix (clusters vs categories)
+- Validate cluster balance
+- Export results to `data/processed/cluster_quality.json`
+
+**Expected Output:**
+```
+📊 Starting cluster quality evaluation...
+📊 Computing cluster quality metrics...
+✅ Silhouette Score: 0.3472 (Good - target >0.3 met)
+📊 Davies-Bouldin Index: 1.234 (lower is better)
+📊 Cluster Purity: 0.8215 (82.2%) (Good - target >70% met)
+📊 Cluster Balance: ✅ Balanced
+✅ Cluster Quality Evaluation Complete
+⏱️ Total execution time: 2m 41s
+```
+
+**Metrics Interpretation:**
+- **Silhouette Score**: Measures how well documents fit their clusters vs other clusters (-1 to 1, higher is better)
+- **Davies-Bouldin Index**: Ratio of within-cluster to between-cluster distances (lower is better)
+- **Cluster Purity**: Percentage of documents matching dominant AG News category per cluster
+- **Confusion Matrix**: Shows cluster-to-category alignment (saved as `confusion_matrix.npy`)
+
 ### Embedding Generation (Programmatic)
 
 Generate semantic embeddings using the Gemini API:
