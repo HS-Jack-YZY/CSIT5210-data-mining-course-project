@@ -1,0 +1,198 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>2</epicId>
+    <storyId>1</storyId>
+    <title>Batch Embedding Generation with Caching</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-09</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>/Users/yuanzheyi/Library/Mobile Documents/com~apple~CloudDocs/HS_Jack_YZY/学校/香港科技大学/CSIT5210/Project/report/docs/stories/2-1-batch-embedding-generation-with-caching.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>data mining student</asA>
+    <iWant>to generate embeddings for all AG News documents with efficient caching</iWant>
+    <soThat>I have vector representations ready for clustering without repeated API calls</soThat>
+    <tasks>
+      <task id="1" ac="1,2,3,4">Create embedding orchestration script scripts/01_generate_embeddings.py</task>
+      <task id="2" ac="1,3">Enhance EmbeddingService.generate_batch() method in src/context_aware_multi_agent_system/features/embedding_service.py</task>
+      <task id="3" ac="3">Implement checkpoint management utilities</task>
+      <task id="4" ac="4">Add cost calculation utility to src/context_aware_multi_agent_system/evaluation/cost_calculator.py</task>
+      <task id="5" ac="1">Update config.yaml with embedding generation parameters</task>
+      <task id="6" ac="1,2,3,4">Test embedding generation pipeline</task>
+      <task id="7" ac="all">Update project documentation</task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC-1" title="Batch Embedding Generation with Gemini API">
+      <requirement>Embeddings generated for all training documents (120,000 samples)</requirement>
+      <requirement>Gemini Batch API used for cost efficiency ($0.075/1M tokens vs standard $0.15/1M)</requirement>
+      <requirement>Batch size configurable (default: 100 documents per API call)</requirement>
+      <requirement>Embedding dimensions validated (768D for gemini-embedding-001)</requirement>
+      <requirement>Progress logged every 1000 documents processed</requirement>
+      <requirement>Total API usage tracked and reported (calls, tokens, estimated cost)</requirement>
+    </criterion>
+    <criterion id="AC-2" title="Embedding Cache Implementation">
+      <requirement>Embeddings cached to data/embeddings/train_embeddings.npy as NumPy array</requirement>
+      <requirement>Test embeddings cached to data/embeddings/test_embeddings.npy</requirement>
+      <requirement>Metadata saved with model, dimensions, num_documents, timestamp, dataset, api_calls, estimated_cost</requirement>
+      <requirement>Embeddings are float32 dtype for memory efficiency</requirement>
+      <requirement>Shape validation: (120000, 768) for train, (7600, 768) for test</requirement>
+      <requirement>Cached embeddings loaded from disk on subsequent runs (skip API calls)</requirement>
+      <requirement>Metadata validated (dimensions, model compatibility)</requirement>
+    </criterion>
+    <criterion id="AC-3" title="Error Handling and Resilience">
+      <requirement>Network interruptions: Resume from last checkpoint (batch-level granularity)</requirement>
+      <requirement>API rate limits: Automatic retry with exponential backoff (4s, 8s, 16s)</requirement>
+      <requirement>Invalid responses: Log warning, skip failed batch, continue processing</requirement>
+      <requirement>Checkpoint file created after each successful batch (resumable)</requirement>
+      <requirement>Maximum 3 retry attempts per batch before skipping</requirement>
+      <requirement>Final report includes: total batches, successful, failed, skipped</requirement>
+    </criterion>
+    <criterion id="AC-4" title="Performance and Cost Tracking">
+      <requirement>Total execution time logged (expected: ~10-15 minutes for 120K documents)</requirement>
+      <requirement>Cost calculation accurate: tokens × pricing ($0.075/1M for batch API)</requirement>
+      <requirement>Final summary with documents processed, API calls, tokens consumed, estimated cost, avg time per batch, total time</requirement>
+      <requirement>Cost below $5 for full dataset (PRD requirement)</requirement>
+    </criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/tech-spec-epic-2.md</path>
+        <title>Epic Technical Specification: K-Means Clustering Implementation</title>
+        <section>Overview and Objectives</section>
+        <snippet>Epic 2 implements K-Means Clustering to partition 120K AG News documents into 4 semantic clusters. Loads cached embeddings from Epic 1 (data/embeddings/train_embeddings.npy) and processes 768-dimensional vectors. This epic bridges Epic 1 (embedding generation) and Epic 3 (specialized agents).</snippet>
+      </doc>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Product Requirements Document</title>
+        <section>Core Deliverables - Data Preparation &amp; Embedding Generation</section>
+        <snippet>Generate embeddings for all AG News documents using Google Gemini Embedding API. Use Batch API for cost efficiency during bulk embedding ($0.075/1M tokens vs $0.15/1M standard). Store embeddings for downstream clustering phase.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture - Context-Aware Multi-Agent System</title>
+        <section>Embedding Service - Google Gemini API</section>
+        <snippet>Uses Google Gemini API with 768-dimensional embeddings and batch processing. Architecture prioritizes reproducibility, clarity, and cost efficiency. Cost target: &lt;$10 total API costs with &gt;90% cost reduction demonstration.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>src/context_aware_multi_agent_system/features/embedding_service.py</path>
+        <kind>service</kind>
+        <symbol>EmbeddingService</symbol>
+        <lines>52-296</lines>
+        <reason>Existing service with generate_embedding() method; needs enhancement with generate_batch() for batch processing</reason>
+      </artifact>
+      <artifact>
+        <path>src/context_aware_multi_agent_system/features/embedding_service.py</path>
+        <kind>method</kind>
+        <symbol>EmbeddingService.generate_batch</symbol>
+        <lines>241-296</lines>
+        <reason>Current implementation loops through documents individually; needs optimization to use Gemini Batch API</reason>
+      </artifact>
+      <artifact>
+        <path>src/context_aware_multi_agent_system/features/embedding_cache.py</path>
+        <kind>service</kind>
+        <symbol>EmbeddingCache</symbol>
+        <lines>52-267</lines>
+        <reason>Existing cache service with save(), load(), exists(), clear() methods - use as-is for embedding storage</reason>
+      </artifact>
+      <artifact>
+        <path>config.yaml</path>
+        <kind>config</kind>
+        <symbol>embedding section</symbol>
+        <lines>20-26</lines>
+        <reason>Current config has model and batch_size; needs additional parameters for cache_enabled, use_batch_api, checkpoint_enabled</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <python>
+        <package name="google-genai" version=">=0.3.0">Gemini API SDK with batch embedding support</package>
+        <package name="numpy" version=">=1.24.0">Embedding array storage and operations (float32 dtype)</package>
+        <package name="tenacity" version=">=8.0.0">Retry decorator for resilience (reused from Story 1.4)</package>
+        <package name="PyYAML" version=">=6.0">Configuration management</package>
+        <package name="python-dotenv" version=">=1.0.0">Environment variable management</package>
+        <package name="datasets" version=">=2.14.0">AG News dataset loading</package>
+      </python>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint type="architecture">Use emoji-prefixed logging pattern (📊, ✅, ⚠️, ❌) established in Story 1.2 and 1.4</constraint>
+    <constraint type="architecture">Follow initialization order: set_seed(42) → load config → setup logger → validate → execute</constraint>
+    <constraint type="architecture">All parameters from config.yaml, no hardcoded values</constraint>
+    <constraint type="data">Embeddings must be float32 dtype for memory efficiency</constraint>
+    <constraint type="data">Shape validation: (120000, 768) for train, (7600, 768) for test</constraint>
+    <constraint type="cost">Total cost must be below $5 for full dataset (PRD requirement)</constraint>
+    <constraint type="cost">Use Gemini Batch API ($0.075/1M tokens) instead of standard API ($0.15/1M tokens)</constraint>
+    <constraint type="performance">Batch size configurable (default: 100 documents per API call)</constraint>
+    <constraint type="resilience">Retry with exponential backoff (4s, 8s, 16s), max 3 attempts per batch</constraint>
+    <constraint type="resilience">Checkpoint after each successful batch for resumability</constraint>
+    <constraint type="testing">All tests must map to acceptance criteria (AC-1, AC-2, AC-3, AC-4)</constraint>
+    <constraint type="testing">Mock API calls to avoid actual network requests in tests</constraint>
+  </constraints>
+  <interfaces>
+    <interface>
+      <name>EmbeddingService.generate_batch</name>
+      <kind>method</kind>
+      <signature>def generate_batch(self, documents: List[str], batch_size: int = 100) -&gt; np.ndarray</signature>
+      <path>src/context_aware_multi_agent_system/features/embedding_service.py</path>
+      <description>Needs enhancement to use Gemini Batch API instead of individual API calls</description>
+    </interface>
+    <interface>
+      <name>EmbeddingCache.save</name>
+      <kind>method</kind>
+      <signature>def save(self, embeddings: np.ndarray, split: str, metadata: Dict[str, Any]) -&gt; Path</signature>
+      <path>src/context_aware_multi_agent_system/features/embedding_cache.py</path>
+      <description>Existing method to save embeddings to .npy and metadata to .json</description>
+    </interface>
+    <interface>
+      <name>EmbeddingCache.load</name>
+      <kind>method</kind>
+      <signature>def load(self, split: str) -&gt; Tuple[np.ndarray, Dict[str, Any]]</signature>
+      <path>src/context_aware_multi_agent_system/features/embedding_cache.py</path>
+      <description>Existing method to load embeddings and metadata from cache</description>
+    </interface>
+    <interface>
+      <name>EmbeddingCache.exists</name>
+      <kind>method</kind>
+      <signature>def exists(self, split: str) -&gt; bool</signature>
+      <path>src/context_aware_multi_agent_system/features/embedding_cache.py</path>
+      <description>Check if cache files exist for a given split</description>
+    </interface>
+    <interface>
+      <name>Gemini Batch Embedding API</name>
+      <kind>REST endpoint</kind>
+      <signature>client.models.embed_content(model=model, contents=batch)</signature>
+      <path>External API</path>
+      <description>Gemini API batch embedding endpoint - accepts list of texts and returns list of embeddings</description>
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>Use pytest framework for all tests. All tests must map to acceptance criteria (AC-1, AC-2, AC-3, AC-4). Mock external API calls using pytest fixtures to avoid actual network requests. Follow testing patterns from Story 1.4: comprehensive docstrings, type hints, and use pytest.raises() for exception testing. Test coverage includes batch embedding generation (shape, dtype, batch size handling), cache operations (save, load, validation, cache hit/miss), checkpoint system (save, load, resume, cleanup), error handling (network failures, retry logic, partial failures), and cost calculation (batch API vs standard API, token estimation).</standards>
+    <locations>
+      <location>tests/epic2/</location>
+      <location>tests/epic2/test_batch_embedding_generation.py</location>
+      <location>tests/epic2/test_checkpoint_system.py</location>
+      <location>tests/epic2/test_cost_calculation.py</location>
+    </locations>
+    <ideas>
+      <idea ac="AC-1">Test batch embedding generation: verify embeddings shape (n_documents, 768), dtype float32, batch size handling, progress logging, API usage tracking</idea>
+      <idea ac="AC-1">Test Gemini Batch API integration: mock API response, verify batch request format, validate embedding extraction from batch response</idea>
+      <idea ac="AC-2">Test cache save/load roundtrip: save embeddings and metadata, load back, verify np.allclose() for array equality and metadata integrity</idea>
+      <idea ac="AC-2">Test cache hit scenario: verify cached embeddings loaded without API calls, log message "⚠️ Using cached embeddings from {path}"</idea>
+      <idea ac="AC-2">Test metadata validation: check model compatibility, dimensions match, timestamp present</idea>
+      <idea ac="AC-3">Test checkpoint save and resume: save checkpoint after batch 50, load checkpoint, verify resume from batch 51</idea>
+      <idea ac="AC-3">Test checkpoint cleanup: verify checkpoint file deleted after successful completion</idea>
+      <idea ac="AC-3">Test retry logic: mock network failure, verify exponential backoff (4s, 8s, 16s), max 3 attempts</idea>
+      <idea ac="AC-3">Test partial batch failures: mock some batches failing, verify final report includes successful/failed/skipped counts</idea>
+      <idea ac="AC-4">Test cost estimation: verify batch API cost ($0.075/1M tokens), standard API cost ($0.15/1M tokens), token count calculation</idea>
+      <idea ac="AC-4">Test execution time tracking: verify total time logged, average time per batch calculated</idea>
+      <idea ac="AC-4">Test final summary: verify all metrics present (documents processed, API calls, tokens, cost, time)</idea>
+    </ideas>
+  </tests>
+</story-context>
