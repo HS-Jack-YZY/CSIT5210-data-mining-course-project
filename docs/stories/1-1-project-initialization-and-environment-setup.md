@@ -1,6 +1,6 @@
 # Story 1.1: Project Initialization and Environment Setup
 
-Status: drafted
+Status: ready-for-dev
 
 ## Story
 
@@ -198,7 +198,7 @@ context-aware-multi-agent-system/
 
 ### Context Reference
 
-<!-- Path(s) to story context XML will be added here by context workflow -->
+- [1-1-project-initialization-and-environment-setup.context.xml](1-1-project-initialization-and-environment-setup.context.xml)
 
 ### Agent Model Used
 

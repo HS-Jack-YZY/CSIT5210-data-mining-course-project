@@ -1,0 +1,251 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>1</storyId>
+    <title>Project Initialization and Environment Setup</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-09</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/1-1-project-initialization-and-environment-setup.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>a data mining student</asA>
+    <iWant>a properly configured Python project with all dependencies and structure</iWant>
+    <soThat>I can begin implementing clustering and classification algorithms without environment issues</soThat>
+    <tasks>
+- [ ] Initialize project structure using Cookiecutter Data Science (AC: #1)
+  - [ ] Install cookiecutter-data-science CLI: `pipx install cookiecutter-data-science` or `pip install cookiecutter-data-science`
+  - [ ] Run `ccds` command with recommended configuration
+  - [ ] Verify all required directories created (data/, src/, notebooks/, reports/, results/, models/)
+  - [ ] Verify src/context_aware_multi_agent_system/ module structure
+
+- [ ] Create and configure virtual environment (AC: #2)
+  - [ ] Create virtual environment: `python3.10 -m venv venv`
+  - [ ] Activate virtual environment
+  - [ ] Upgrade pip: `pip install --upgrade pip`
+
+- [ ] Configure requirements.txt with all dependencies (AC: #2)
+  - [ ] Add google-genai>=0.3.0 (Gemini Embedding API)
+  - [ ] Add scikit-learn>=1.7.2 (K-Means, PCA, metrics)
+  - [ ] Add numpy>=1.24.0 (array operations)
+  - [ ] Add pandas>=2.0.0 (data manipulation)
+  - [ ] Add datasets>=2.14.0 (Hugging Face AG News)
+  - [ ] Add matplotlib>=3.7.0 (visualization)
+  - [ ] Add seaborn>=0.12.0 (statistical plots)
+  - [ ] Add PyYAML>=6.0 (config parsing)
+  - [ ] Add python-dotenv>=1.0.0 (environment variables)
+  - [ ] Add tenacity>=8.0.0 (retry logic)
+  - [ ] Add pytest>=7.4.0 (testing framework)
+  - [ ] Add ruff>=0.1.0 (linter/formatter)
+  - [ ] Add jupyter>=1.0.0 (notebooks)
+
+- [ ] Install all dependencies (AC: #2)
+  - [ ] Run `pip install -r requirements.txt`
+  - [ ] Verify successful installation
+  - [ ] Test critical imports
+
+- [ ] Configure .gitignore for security (AC: #1)
+  - [ ] Verify .env is in .gitignore (prevent API key leaks)
+  - [ ] Verify data/ is in .gitignore (prevent large file commits)
+  - [ ] Verify *.pyc and __pycache__/ in .gitignore
+  - [ ] Verify .ipynb_checkpoints/ in .gitignore
+
+- [ ] Create .env.example template (AC: #1)
+  - [ ] Create .env.example with GEMINI_API_KEY template
+  - [ ] Add comments explaining required variables
+  - [ ] Commit .env.example to git (without real keys)
+
+- [ ] Validate project setup (AC: #1, #2)
+  - [ ] Verify directory structure matches architecture specification
+  - [ ] Test that all Python packages import successfully
+  - [ ] Verify .gitignore prevents committing sensitive files
+  - [ ] Document project structure in README.md
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+### AC-1: Project Structure Initialized
+**Given** I run the Cookiecutter Data Science initialization
+**When** the template setup completes
+**Then** the following structure exists:
+- ✅ Project root contains: `data/`, `src/`, `notebooks/`, `reports/`, `results/`, `models/`
+- ✅ `src/context_aware_multi_agent_system/` module exists with `__init__.py`
+- ✅ Submodules exist: `src/.../data/`, `src/.../features/`, `src/.../models/`, `src/.../evaluation/`, `src/.../visualization/`, `src/.../utils/`
+- ✅ `.gitignore` includes: `.env`, `data/`, `*.pyc`, `__pycache__/`, `.ipynb_checkpoints/`
+- ✅ `requirements.txt` exists with all specified dependencies
+- ✅ `README.md` exists with project overview
+
+### AC-2: Virtual Environment Functional
+**Given** the project structure is initialized
+**When** I create and activate virtual environment
+**Then**:
+- ✅ `python3.10 -m venv venv` succeeds without errors
+- ✅ Virtual environment activates successfully
+- ✅ `pip install -r requirements.txt` completes without errors
+- ✅ All imports succeed: `import google.generativeai, sklearn, numpy, pandas, datasets, matplotlib, seaborn, yaml, dotenv, tenacity`
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic Technical Specification: Foundation &amp; Environment Setup</title>
+        <section>Story 1.1: Project Initialization Workflow</section>
+        <snippet>Cookiecutter Data Science template setup with Python 3.10, virtualenv creation, dependency installation from requirements.txt including google-genai, scikit-learn, numpy, pandas for ML stack.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic Technical Specification: Foundation &amp; Environment Setup</title>
+        <section>Python Dependencies (requirements.txt)</section>
+        <snippet>Complete dependency stack: google-genai>=0.3.0, scikit-learn>=1.7.2, numpy>=1.24.0, pandas>=2.0.0, datasets>=2.14.0, matplotlib>=3.7.0, seaborn>=0.12.0, PyYAML>=6.0, python-dotenv>=1.0.0, tenacity>=8.0.0, pytest>=7.4.0, ruff>=0.1.0, jupyter>=1.0.0</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture - Context-Aware Multi-Agent System</title>
+        <section>ADR-001: Use Cookiecutter Data Science Template</section>
+        <snippet>Industry-standard structure with data/src/notebooks/reports separation. First story must run ccds command. Project structure predefined, all team members familiar with standard layout.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture - Context-Aware Multi-Agent System</title>
+        <section>Project Initialization</section>
+        <snippet>Run 'ccds' with recommended configuration: Python 3.10, virtualenv, requirements.txt, pytest, ruff, basic pydata packages (numpy, pandas, scikit-learn, matplotlib, jupyter).</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture - Context-Aware Multi-Agent System</title>
+        <section>Complete Project Structure</section>
+        <snippet>Standard layout: data/ (raw, embeddings, interim, processed), src/context_aware_multi_agent_system/ (data, features, models, evaluation, visualization, utils modules), notebooks/, reports/, results/, tests/, scripts/</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture - Context-Aware Multi-Agent System</title>
+        <section>ADR-006: Separate Configuration and Secrets</section>
+        <snippet>config.yaml committed to git for parameters, .env NOT committed for secrets. Prevents API key leaks. .env.example provides template. Setup requires copying .env.example to .env.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <!-- No existing code artifacts - this is the initial project setup story -->
+      <note>This story creates the initial project structure. No existing code to reference.</note>
+    </code>
+    <dependencies>
+      <python version="3.10">
+        <package name="google-genai" version=">=0.3.0" purpose="Gemini Embedding API SDK"/>
+        <package name="scikit-learn" version=">=1.7.2" purpose="K-Means clustering, PCA, metrics"/>
+        <package name="numpy" version=">=1.24.0" purpose="Array operations, efficient storage"/>
+        <package name="pandas" version=">=2.0.0" purpose="Data manipulation, analysis"/>
+        <package name="datasets" version=">=2.14.0" purpose="Hugging Face datasets (AG News)"/>
+        <package name="matplotlib" version=">=3.7.0" purpose="Core plotting library"/>
+        <package name="seaborn" version=">=0.12.0" purpose="Statistical visualizations"/>
+        <package name="PyYAML" version=">=6.0" purpose="config.yaml parsing"/>
+        <package name="python-dotenv" version=">=1.0.0" purpose=".env file management"/>
+        <package name="tenacity" version=">=8.0.0" purpose="Retry decorator for API calls"/>
+        <package name="pytest" version=">=7.4.0" purpose="Unit testing framework"/>
+        <package name="ruff" version=">=0.1.0" purpose="Python linter and formatter"/>
+        <package name="jupyter" version=">=1.0.0" purpose="Interactive notebooks"/>
+      </python>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint category="architecture">
+      Must use Cookiecutter Data Science v2 template (ADR-001) - run 'ccds' command for initialization
+    </constraint>
+    <constraint category="python-version">
+      Require Python 3.10 for compatibility with scikit-learn 1.7.2+
+    </constraint>
+    <constraint category="environment">
+      Use virtualenv for environment management (not conda)
+    </constraint>
+    <constraint category="security">
+      .gitignore MUST include: .env, data/, *.pyc, __pycache__/, .ipynb_checkpoints/ (ADR-006)
+    </constraint>
+    <constraint category="security">
+      Create .env.example template WITHOUT real API keys (committed to git)
+    </constraint>
+    <constraint category="structure">
+      Project structure must match architecture specification exactly: data/, src/, notebooks/, reports/, results/, models/
+    </constraint>
+    <constraint category="module-structure">
+      Source module: src/context_aware_multi_agent_system/ with submodules: data/, features/, models/, evaluation/, visualization/, utils/
+    </constraint>
+    <constraint category="dependencies">
+      All dependencies specified in requirements.txt with minimum versions (>= notation)
+    </constraint>
+  </constraints>
+  <interfaces>
+    <interface name="Project Structure" type="filesystem">
+      <description>Directory layout created by Cookiecutter Data Science template</description>
+      <contract>
+        Root directories: data/, src/, notebooks/, reports/, results/, models/, tests/, scripts/, docs/
+        Source module: src/context_aware_multi_agent_system/__init__.py
+        Submodules: data/, features/, models/, evaluation/, visualization/, utils/ (each with __init__.py)
+      </contract>
+    </interface>
+    <interface name="Configuration Files" type="filesystem">
+      <description>Project configuration and environment setup</description>
+      <contract>
+        requirements.txt: Dependency specifications with versions
+        .gitignore: Security exclusions (.env, data/, etc.)
+        .env.example: Template for environment variables
+        pyproject.toml: Modern Python project config (from template)
+        Makefile: Common commands (from template)
+      </contract>
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>
+      Manual verification for AC-1 (project structure validation).
+      Automated import tests for AC-2 (dependency installation verification).
+      Testing framework: pytest for unit tests (if time permits).
+      All tests should verify against architecture specification requirements.
+    </standards>
+    <locations>
+      tests/ directory (created by Cookiecutter template)
+      tests/__init__.py
+      Future test files will follow pattern: tests/test_*.py
+    </locations>
+    <ideas>
+      <test id="AC-1-verification" ac="AC-1">
+        Manual checklist:
+        - Verify project root contains: data/, src/, notebooks/, reports/, results/, models/
+        - Verify src/context_aware_multi_agent_system/ module exists with __init__.py
+        - Verify submodules exist: data/, features/, models/, evaluation/, visualization/, utils/
+        - Verify .gitignore includes: .env, data/, *.pyc, __pycache__/, .ipynb_checkpoints/
+        - Verify requirements.txt exists with all specified dependencies
+        - Verify README.md exists with project overview
+
+        Bash validation script:
+        ```bash
+        ls -la  # Should show data/, src/, notebooks/, reports/, results/, models/
+        ls -la src/context_aware_multi_agent_system/  # Should show __init__.py and submodules
+        cat .gitignore | grep -E '(\.env|data/|\.pyc|__pycache__|\.ipynb_checkpoints)'
+        ```
+      </test>
+      <test id="AC-2-verification" ac="AC-2">
+        Automated import test:
+        ```bash
+        # Verify virtual environment creation
+        python3.10 -m venv venv
+        source venv/bin/activate
+
+        # Verify dependency installation
+        pip install -r requirements.txt
+
+        # Verify all imports succeed
+        python -c "import google.generativeai; import sklearn; import numpy; import pandas; import datasets; import matplotlib; import seaborn; import yaml; from dotenv import load_dotenv; import tenacity; print('✅ All dependencies installed')"
+        ```
+      </test>
+      <test id="structure-validation" ac="AC-1">
+        Verify directory structure matches architecture specification exactly.
+        Compare actual structure against architecture.md Complete Project Structure section.
+      </test>
+      <test id="gitignore-security" ac="AC-1">
+        Verify .gitignore prevents committing sensitive files.
+        Test that .env file is properly excluded from git tracking.
+        Test that data/ directory is excluded from git commits.
+      </test>
+    </ideas>
+  </tests>
+</story-context>
