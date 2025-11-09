@@ -1,6 +1,6 @@
 # Story 1.2: Configuration Management System
 
-Status: review
+Status: done
 
 ## Story
 

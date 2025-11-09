@@ -1,6 +1,6 @@
 # Story 1.4: Gemini API Integration and Authentication
 
-Status: review
+Status: done
 
 ## Story
 

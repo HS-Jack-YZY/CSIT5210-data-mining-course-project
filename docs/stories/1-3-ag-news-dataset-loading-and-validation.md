@@ -1,6 +1,6 @@
 # Story 1.3: AG News Dataset Loading and Validation
 
-Status: review
+Status: done
 
 ## Story
 
