@@ -1143,6 +1143,284 @@ The final story (4.7) validates that all success criteria are met:
 - ✅ **Technical:** >90% cost reduction, >80% accuracy, Silhouette >0.3
 - ✅ **Deliverables:** Clean code, experimental report, visualizations
 
+## Epic 5: Alternative Clustering Algorithms Exploration
+
+**Goal:** Implement and evaluate alternative clustering algorithms (DBSCAN, Hierarchical Clustering, Gaussian Mixture Models) to compare with K-Means, addressing the documented limitations of K-Means on high-dimensional text embeddings.
+
+**Value:** This epic provides deeper academic insights by comparing multiple clustering methods, demonstrating comprehensive understanding of data mining algorithms, and providing scientific evidence for algorithm selection in high-dimensional text clustering tasks.
+
+**Academic Context:** This epic addresses the findings from Epic 2 where K-Means showed poor performance (Silhouette Score ≈0.0008, cluster purity ≈25%). By exploring alternative algorithms, we validate whether the issue is algorithm-specific or task-specific (curse of dimensionality).
+
+### Story 5.1: DBSCAN Density-Based Clustering Implementation
+
+As a **data mining student**,
+I want **to apply DBSCAN clustering to the AG News embeddings**,
+So that **I can evaluate whether density-based clustering performs better than K-Means on high-dimensional text data**.
+
+**Acceptance Criteria:**
+
+**Given** document embeddings are generated and cached (from Story 2.1)
+**When** I run DBSCAN clustering algorithm
+**Then** DBSCAN is applied with parameters:
+- eps = 0.5 (initial, to be tuned)
+- min_samples = 5 (configurable)
+- metric = 'cosine' (appropriate for text embeddings)
+
+**And** clustering results are generated including:
+- Core samples identification
+- Cluster assignments (including noise points labeled as -1)
+- Number of clusters discovered (may differ from K=4)
+- Number of noise points
+
+**And** cluster assignments are saved to data/clusters/dbscan_assignments.csv with columns:
+- document_id
+- cluster_id (-1 for noise)
+- ground_truth_category
+- is_core_sample (boolean)
+
+**And** parameter tuning is performed:
+- Test multiple eps values (0.3, 0.5, 0.7, 1.0)
+- Test multiple min_samples values (3, 5, 10)
+- Select parameters that maximize Silhouette Score
+- Document parameter selection rationale
+
+**And** cluster size distribution is logged (including noise cluster size)
+
+**And** convergence and performance metrics are tracked
+
+**Prerequisites:** Story 2.1 (embeddings must exist)
+
+**Technical Notes:**
+- Use scikit-learn DBSCAN class
+- Cosine metric important for text embeddings (not Euclidean)
+- DBSCAN can discover variable number of clusters
+- Noise points may indicate outliers or poor fit
+- Expected runtime: ~10-15 minutes for 120K documents
+- May need dimensionality reduction before DBSCAN for computational efficiency
+
+---
+
+### Story 5.2: Hierarchical Agglomerative Clustering with Dendrogram
+
+As a **data mining student**,
+I want **to apply hierarchical clustering and visualize the dendrogram**,
+So that **I can understand the hierarchical structure of news categories and compare with flat clustering approaches**.
+
+**Acceptance Criteria:**
+
+**Given** document embeddings are generated and cached
+**When** I run agglomerative hierarchical clustering
+**Then** Hierarchical clustering is applied with parameters:
+- n_clusters = 4 (for comparison with K-Means)
+- linkage = 'ward' (minimum variance)
+- affinity = 'euclidean' (required for ward)
+
+**And** alternative linkage methods are tested:
+- 'complete' (maximum linkage)
+- 'average' (average linkage)
+- 'single' (minimum linkage)
+- Compare results across linkage methods
+
+**And** cluster assignments are saved to data/clusters/hierarchical_assignments.csv
+
+**And** dendrogram visualization is generated showing:
+- Hierarchical merge structure
+- Cluster boundaries at n_clusters=4
+- Color-coded clusters
+- Height axis (distance metric)
+- Saved to visualizations/dendrogram.png (300 DPI)
+
+**And** for computational efficiency:
+- Use sampling if full dataset is too large (sample 10K documents)
+- Or use truncated dendrogram for visualization
+- Document any sampling strategy used
+
+**And** cluster quality metrics are calculated (Silhouette Score, Davies-Bouldin Index)
+
+**Prerequisites:** Story 2.1
+
+**Technical Notes:**
+- Use scikit-learn AgglomerativeClustering
+- Ward linkage minimizes within-cluster variance (similar goal to K-Means)
+- Dendrogram may be truncated for large datasets (use scipy.cluster.hierarchy)
+- Expected runtime: ~15-20 minutes for full dataset (may require sampling)
+- Hierarchical clustering provides insights into category relationships
+
+---
+
+### Story 5.3: Gaussian Mixture Model (GMM) Soft Clustering
+
+As a **data mining student**,
+I want **to apply Gaussian Mixture Models for probabilistic clustering**,
+So that **I can compare soft clustering (probabilistic assignments) with hard clustering (K-Means) approaches**.
+
+**Acceptance Criteria:**
+
+**Given** document embeddings are generated and cached
+**When** I run GMM clustering algorithm
+**Then** GMM is applied with parameters:
+- n_components = 4 (for comparison with K-Means)
+- covariance_type = 'full' (initial setting)
+- random_state = 42 (reproducibility)
+- max_iter = 100
+
+**And** alternative covariance types are tested:
+- 'full' (each component has own covariance matrix)
+- 'tied' (all components share covariance)
+- 'diag' (diagonal covariance)
+- 'spherical' (single variance per component)
+- Compare BIC/AIC scores across types
+
+**And** probabilistic cluster assignments are extracted:
+- Hard assignments: argmax of probability distribution
+- Soft assignments: full probability distribution over clusters
+- Assignment confidence: max probability value
+
+**And** cluster assignments are saved to data/clusters/gmm_assignments.csv with columns:
+- document_id
+- cluster_id (hard assignment)
+- cluster_probabilities (array of 4 probabilities)
+- assignment_confidence (max probability)
+- ground_truth_category
+
+**And** GMM-specific metrics are calculated:
+- Log-likelihood of the model
+- BIC (Bayesian Information Criterion)
+- AIC (Akaike Information Criterion)
+- Component weights (mixing coefficients)
+
+**And** uncertainty analysis is performed:
+- Identify documents with low assignment confidence (<0.5)
+- Analyze confusion between cluster pairs
+- Compare uncertainty patterns with ground truth categories
+
+**And** convergence information is logged (iterations, final log-likelihood)
+
+**Prerequisites:** Story 2.1
+
+**Technical Notes:**
+- Use scikit-learn GaussianMixture class
+- GMM assumes Gaussian distributions in feature space
+- Soft clustering provides uncertainty estimates (unlike K-Means)
+- High-dimensional spaces may cause covariance matrix issues
+- Expected runtime: ~5-10 minutes for 120K documents
+- Compare convergence speed with K-Means
+
+---
+
+### Story 5.4: Comprehensive Clustering Algorithm Comparison
+
+As a **data mining student**,
+I want **a comprehensive comparison of all clustering algorithms tested**,
+So that **I can make data-driven recommendations about which algorithm is most suitable for text clustering tasks**.
+
+**Acceptance Criteria:**
+
+**Given** all clustering algorithms have been executed (K-Means, DBSCAN, Hierarchical, GMM)
+**When** I run the comparison analysis
+**Then** a comparison matrix is created with all algorithms across metrics:
+
+| Metric | K-Means | DBSCAN | Hierarchical | GMM |
+|--------|---------|---------|--------------|-----|
+| Silhouette Score | X | X | X | X |
+| Davies-Bouldin Index | X | X | X | X |
+| Cluster Purity | X | X | X | X |
+| Number of Clusters | 4 | Variable | 4 | 4 |
+| Noise Points | 0 | X | 0 | 0 |
+| Runtime (seconds) | X | X | X | X |
+| Convergence Iterations | X | N/A | N/A | X |
+
+**And** side-by-side PCA visualizations are generated showing:
+- 2x2 or 1x4 subplot layout
+- All four algorithms on same 2D PCA projection
+- Consistent color mapping where possible
+- Cluster centroids or representative points marked
+- Saved to visualizations/algorithm_comparison.png (300 DPI)
+
+**And** per-algorithm analysis includes:
+- Strengths: when algorithm performed well
+- Weaknesses: failure modes and edge cases
+- Computational complexity: runtime and scalability
+- Parameter sensitivity: how tuning affects results
+
+**And** ground truth alignment analysis:
+- Confusion matrix for each algorithm
+- Category-to-cluster mapping quality
+- Misclassification patterns
+- Best-performing algorithm for each category
+
+**And** dimensionality challenge analysis:
+- How each algorithm handles 768-dimensional space
+- Evidence of curse of dimensionality
+- Recommendations for dimensionality reduction preprocessing
+
+**And** comprehensive comparison report is saved to results/clustering_comparison.md with sections:
+1. **Methodology**: Datasets, metrics, evaluation approach
+2. **Quantitative Results**: Comparison matrix with all metrics
+3. **Visual Comparison**: PCA plots side-by-side
+4. **Algorithm Analysis**: Strengths/weaknesses of each method
+5. **Recommendations**: Which algorithm for which use case
+6. **Lessons Learned**: Insights about high-dimensional text clustering
+
+**And** key findings are summarized:
+- Best overall algorithm (if any)
+- Best algorithm for specific criteria (speed, purity, noise handling)
+- Why K-Means failed (validated with alternatives)
+- Recommendations for future text clustering projects
+
+**Prerequisites:** Story 5.1, Story 5.2, Story 5.3, Story 2.2, Story 2.3
+
+**Technical Notes:**
+- Normalize metrics for fair comparison (some are 0-1, others unbounded)
+- Use consistent random seeds across algorithms where applicable
+- Consider computational cost vs quality tradeoffs
+- This story integrates findings from entire Epic 5
+- Results feed into final experimental report (Story 4.5 if extended)
+
+---
+
+### Epic 5 Summary
+
+**Overview:**
+Epic 5 extends the K-Means clustering experiment with a comprehensive exploration of alternative clustering algorithms, providing scientific evidence for algorithm selection in high-dimensional text clustering tasks.
+
+**Story Distribution:**
+
+| Story | Algorithm | Focus | Estimated Time |
+|-------|-----------|-------|----------------|
+| 5.1 | DBSCAN | Density-based clustering, noise handling | 4 hours |
+| 5.2 | Hierarchical | Hierarchical structure, dendrogram visualization | 4 hours |
+| 5.3 | GMM | Soft clustering, probabilistic assignments | 3 hours |
+| 5.4 | Comparison | Comprehensive algorithm comparison and analysis | 5 hours |
+| **Total** | **4 algorithms** | **Complete comparison study** | **~16 hours (2 days)** |
+
+**Requirements Coverage:**
+This epic addresses the "Growth Features" mentioned in PRD:
+- ✅ "Try alternative clustering algorithms (DBSCAN for density-based)"
+- ✅ "Cross-validate cluster stability"
+- ✅ "Enhanced Clustering" section recommendations
+
+**Key Deliverables:**
+- DBSCAN clustering implementation with parameter tuning
+- Hierarchical clustering with dendrogram visualization
+- GMM soft clustering with uncertainty analysis
+- Comprehensive comparison report with side-by-side PCA visualizations
+- Algorithm selection recommendations for text clustering
+
+**Academic Value:**
+- Demonstrates deep understanding of multiple clustering paradigms
+- Provides scientific validation of algorithm-task fit
+- Addresses the "why K-Means failed" question with empirical evidence
+- Shows professional approach to negative results (testing alternatives)
+
+**Success Validation:**
+- All four algorithms implemented and evaluated
+- Comprehensive comparison matrix completed
+- Clear recommendations for algorithm selection
+- Visual and quantitative evidence supporting conclusions
+
+---
+
 ### Next Steps
 
 With this epic breakdown complete, the project is ready for:
