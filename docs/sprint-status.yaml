@@ -43,7 +43,7 @@ development_status:
   1-4-gemini-api-integration-and-authentication: done
   epic-1-retrospective: completed
 
-  epic-2: backlog
+  epic-2: contexted
   2-1-batch-embedding-generation-with-caching: backlog
   2-2-k-means-clustering-implementation: backlog
   2-3-cluster-quality-evaluation: backlog
