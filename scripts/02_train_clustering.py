@@ -15,6 +15,16 @@ Features:
     - Comprehensive logging with emoji prefixes
 """
 
+# CRITICAL: Set environment variables for reproducibility BEFORE importing numpy
+# This ensures single-threaded execution to prevent non-deterministic behavior
+# from multi-threaded BLAS libraries (OpenBLAS/MKL)
+import os
+os.environ['OMP_NUM_THREADS'] = '1'
+os.environ['MKL_NUM_THREADS'] = '1'
+os.environ['OPENBLAS_NUM_THREADS'] = '1'
+os.environ['NUMEXPR_NUM_THREADS'] = '1'
+os.environ['PYTHONHASHSEED'] = '0'
+
 import json
 import logging
 import sys

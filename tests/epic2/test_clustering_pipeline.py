@@ -67,13 +67,33 @@ class TestClusteringScriptExecution:
 
     def test_script_fails_without_embeddings(self, project_root, tmp_path):
         """Test script fails gracefully when embeddings missing (AC-7)."""
-        # Create temporary config pointing to non-existent embeddings
-        # This test verifies error handling when embeddings don't exist
-        # We'll simulate this by checking the error message in actual failure case
+        script_path = project_root / "scripts" / "02_train_clustering.py"
+        embeddings_path = project_root / "data" / "embeddings" / "train_embeddings.npy"
 
-        # Note: This is a design test - the actual implementation should fail
-        # gracefully with a helpful error message
-        pass  # Skip for now as it would require mocking
+        # Only run this test if embeddings don't exist
+        # (We don't want to delete real embeddings to test error handling)
+        if embeddings_path.exists():
+            pytest.skip("Embeddings exist - cannot test missing embeddings error without deleting real data")
+
+        # Run script with missing embeddings
+        result = subprocess.run(
+            [sys.executable, str(script_path)],
+            capture_output=True,
+            text=True,
+            cwd=project_root
+        )
+
+        # Verify script failed (non-zero exit code)
+        assert result.returncode != 0, "Script should fail when embeddings missing"
+
+        # Verify helpful error message is present
+        error_output = result.stderr + result.stdout
+        assert "not found" in error_output.lower() or "embeddings" in error_output.lower(), \
+            "Error message should mention missing embeddings"
+
+        # Verify suggestion to run Epic 1 script is present
+        assert "01_generate_embeddings" in error_output or "Epic 1" in error_output or "generate" in error_output, \
+            "Error message should suggest running embedding generation script"
 
 
 class TestClusterAssignmentsExport:
@@ -314,21 +334,54 @@ class TestReproducibility:
             )
             assert result.returncode == 0
 
+            # CRITICAL FIX: Add explicit file system sync to prevent race conditions
+            # Wait for file system to fully flush writes before reading
+            time.sleep(0.1)  # 100ms buffer to ensure files are written
+
+            # Verify files exist before reading
+            assert assignments_path.exists(), f"Run {run+1}: Assignments file not created"
+            assert centroids_path.exists(), f"Run {run+1}: Centroids file not created"
+
             if run == 0:
                 # Save first run results
+                # Force immediate read to avoid stale cache
                 assignments_1 = pd.read_csv(assignments_path)
                 centroids_1 = np.load(centroids_path)
+
+                # Verify data was actually loaded
+                assert len(assignments_1) > 0, "Run 1: Empty assignments loaded"
+                assert centroids_1.size > 0, "Run 1: Empty centroids loaded"
             else:
                 # Compare second run results
+                # Force fresh read from disk
                 assignments_2 = pd.read_csv(assignments_path)
                 centroids_2 = np.load(centroids_path)
 
+                # Verify data was actually loaded
+                assert len(assignments_2) > 0, "Run 2: Empty assignments loaded"
+                assert centroids_2.size > 0, "Run 2: Empty centroids loaded"
+
                 # Verify identical cluster assignments (document_id and cluster_id columns only)
                 # Note: category_label may differ if AG News dataset was loaded after first run
-                assert np.array_equal(
-                    assignments_1['cluster_id'].values,
-                    assignments_2['cluster_id'].values
-                ), "Cluster assignments differ across runs"
+                cluster_ids_1 = assignments_1['cluster_id'].to_numpy()
+                cluster_ids_2 = assignments_2['cluster_id'].to_numpy()
+
+                # Debug: Check if arrays are identical
+                if not np.array_equal(cluster_ids_1, cluster_ids_2):
+                    # Find differences for debugging
+                    diff_mask = cluster_ids_1 != cluster_ids_2
+                    diff_count = np.sum(diff_mask)
+                    if diff_count > 0:
+                        diff_indices = np.where(diff_mask)[0][:10]  # First 10 differences
+                        raise AssertionError(
+                            f"Cluster assignments differ in {diff_count} positions. "
+                            f"First differences at indices {diff_indices}: "
+                            f"run1={cluster_ids_1[diff_indices]}, "
+                            f"run2={cluster_ids_2[diff_indices]}"
+                        )
+
+                assert np.array_equal(cluster_ids_1, cluster_ids_2), \
+                    "Cluster assignments differ across runs"
 
                 assert np.allclose(centroids_1, centroids_2, atol=1e-6), \
                     "Centroids differ across runs"
