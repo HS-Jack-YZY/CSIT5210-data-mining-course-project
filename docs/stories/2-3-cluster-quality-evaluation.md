@@ -1,6 +1,6 @@
 # Story 2.3: Cluster Quality Evaluation
 
-Status: drafted
+Status: ready-for-dev
 
 ## Story
 
@@ -826,7 +826,7 @@ def test_performance_targets():
 
 ### Context Reference
 
-<!-- Path(s) to story context XML will be added here by context workflow -->
+- docs/stories/2-3-cluster-quality-evaluation.context.xml
 
 ### Agent Model Used
 
