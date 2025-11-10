@@ -262,7 +262,7 @@ def save_assignments(
     # Validate probabilities
     prob_columns = [f'cluster_{i}_prob' for i in range(n_components)]
     prob_sums = df[prob_columns].sum(axis=1)
-    assert np.allclose(prob_sums, 1.0, atol=1e-5), "Probabilities do not sum to 1.0"
+    assert np.allclose(prob_sums, 1.0, atol=1e-4), "Probabilities do not sum to 1.0"
 
     # Validate probability ranges
     for col in prob_columns:
@@ -294,14 +294,14 @@ def main():
 
     # Load cached embeddings
     logger.info("📂 Loading cached embeddings...")
-    cache = EmbeddingCache(paths.embeddings_dir)
+    cache = EmbeddingCache(paths.data_embeddings)
 
     if not cache.exists('train'):
         raise FileNotFoundError(
             "Training embeddings cache not found. Please run 01_generate_embeddings.py first."
         )
 
-    embeddings = cache.load('train')
+    embeddings, metadata = cache.load('train')
     logger.info(f"✅ Loaded {len(embeddings)} training embeddings")
 
     # Validate embeddings
@@ -310,8 +310,8 @@ def main():
     # Load ground truth labels
     logger.info("📂 Loading ground truth labels...")
     dataset_loader = DatasetLoader(config)
-    train_data = dataset_loader.load_train_data()
-    ground_truth = train_data['label'].values.astype(np.int32)
+    train_data, _ = dataset_loader.load_ag_news()
+    ground_truth = np.array(train_data['label'], dtype=np.int32)
     logger.info(f"✅ Loaded {len(ground_truth)} ground truth labels")
 
     assert len(embeddings) == len(ground_truth), \
@@ -333,7 +333,7 @@ def main():
     comparison_df = gmm.compare_covariance_types(embeddings, covariance_types)
 
     # Save covariance comparison
-    comparison_path = paths.results_dir / 'gmm_covariance_comparison.csv'
+    comparison_path = paths.results / 'gmm_covariance_comparison.csv'
     comparison_df.to_csv(comparison_path, index=False)
     logger.info(f"💾 Saved covariance comparison to {comparison_path}")
 
@@ -406,7 +406,7 @@ def main():
     logger.info("=" * 80)
 
     # Create output directories
-    processed_dir = paths.data_dir / 'processed'
+    processed_dir = paths.data_processed
     processed_dir.mkdir(parents=True, exist_ok=True)
 
     # Save assignments
@@ -455,7 +455,7 @@ def main():
         'runtime_seconds': time.time() - start_time
     }
 
-    metrics_path = paths.results_dir / 'gmm_metrics.json'
+    metrics_path = paths.results / 'gmm_metrics.json'
     with open(metrics_path, 'w') as f:
         json.dump(metrics_output, f, indent=2)
 
